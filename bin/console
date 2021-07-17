@@ -2,13 +2,66 @@
 
 require "bundler/setup"
 require "linked_payload"
+require "pry"
 
 # You can add fixtures and/or initialization code here to make experimenting
 # with your gem easier. You can also use a different console, if you like.
 
-# (If you use this, don't forget to add pry to your Gemfile!)
-# require "pry"
-# Pry.start
+class Horse
+  include LinkedPayload
 
-require "irb"
-IRB.start(__FILE__)
+  def initialize(name, age, children)
+    @name = name
+    @age = age
+    @children = children
+  end
+
+  field :name, string, -> { @name }
+  field :age, numeric, -> { @age }
+  field :children, array(::Horse), -> { @children }
+end
+
+class Person
+  include LinkedPayload
+
+  def initialize(name, age, kind, horses)
+    @name = name
+    @age = age
+    @kind = kind
+    @horses = horses
+  end
+
+  field :name, string, -> { @name }
+  field :age, numeric, -> { @age }
+  field :kind, one_of([eql("owner"), eql("racer")]), -> { @kind }
+  field :horses, array(::Horse), -> { @horses }
+
+  link -> { nil }
+  link -> { { rel: 'self', href: "/users/#{@name}" } }
+end
+
+def dave
+  ::Horse.new("Dave", 1, [])
+end
+
+def rigby
+  ::Horse.new("Rigby", 2, [])
+end
+
+def ruby
+  ::Horse.new("Ruby", 6, [dave, rigby])
+end
+
+def bob
+  ::Person.new("Bob", 70, "owner", [dave, rigby, ruby])
+end
+
+def bab
+  ::Person.new("Bab", "bad", "owner", [dave, rigby, ruby])
+end
+
+def bab2
+  ::Person.new("Bob", 70, "owner", [dave, rigby, bab])
+end
+
+Pry.start

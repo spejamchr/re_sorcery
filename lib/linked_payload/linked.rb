@@ -7,9 +7,6 @@ module LinkedPayload
     include LinkedPayload::Result
 
     module ClassMethods
-      include LinkedPayload::Error::ArgCheck
-      attr_reader :links_proc
-
       # Define a set of `Link`s for a class
       #
       # The block is evaluated in the context of an instance of the class, so
@@ -44,12 +41,14 @@ module LinkedPayload
     end
 
     # Define a `Link` for an object
+    #
+    # @see `LinkedPayload::Linked::Link#initialize` for param types
     def link(rel, href, method = 'get', type = 'application/json')
       (@_created_links ||= []) << Link.new(rel: rel, href: href, method: method, type: type).fields
     end
 
     def links
-      instance_exec(&self.class.links_proc)
+      instance_exec(&self.class.instance_exec { @links_proc || -> {} })
       created_links = (@_created_links ||= [])
       @_created_links = [] # Clear out so `links` can run cleanly next time
 

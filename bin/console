@@ -16,8 +16,8 @@ class Horse
     @children = children
   end
 
-  field :name, is(String), -> { @name }
-  field :age, is(Numeric), -> { @age }
+  field :name, String, -> { @name }
+  field :age, Numeric, -> { @age }
   field :children, array(::Horse), -> { @children }
 end
 
@@ -31,13 +31,14 @@ class Person
     @horses = horses
   end
 
-  field :name, is(String), -> { @name }
-  field :age, is(Numeric), -> { @age }
-  field :kind, one_of(is("owner"), is("racer")), -> { @kind }
+  field :name, String, -> { @name }
+  field :age, Numeric, -> { @age }
+  field :kind, one_of("owner", "racer"), -> { @kind }
   field :horses, array(::Horse), -> { @horses }
 
-  link -> { nil }
-  link -> { { rel: 'self', href: "/users/#{@name}" } }
+  links do
+    link 'self', "/users/#{@name}"
+  end
 end
 
 def dave
@@ -52,6 +53,10 @@ def ruby
   ::Horse.new("Ruby", 6, [dave, rigby])
 end
 
+def bad_horse
+  ::Horse.new("bad horse", 4, [bob])
+end
+
 def bob
   ::Person.new("Bob", 70, "owner", [dave, rigby, ruby])
 end
@@ -61,7 +66,7 @@ def bab
 end
 
 def bab2
-  ::Person.new("Bob", 70, "owner", [dave, rigby, bab])
+  ::Person.new("Bob", 70, "owner", [dave, rigby, bad_horse])
 end
 
 Pry.start

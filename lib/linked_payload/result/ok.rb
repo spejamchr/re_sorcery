@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
+require 'linked_payload/arg_check'
+
 module LinkedPayload
   module Result
     class Ok
       include Result
-      include LinkedPayload::Error::ArgCheck
 
       class NonHashAssignError < LinkedPayload::Error::LinkedPayloadError
         def initialize(value)
@@ -21,7 +22,7 @@ module LinkedPayload
       end
 
       def and_then(&block)
-        arg_check('block', block.call(@value), Result)
+        ArgCheck.arg_check('block', block.call(@value), Result)
       end
 
       def map(&block)
@@ -39,7 +40,7 @@ module LinkedPayload
       def assign(name, &block)
         raise NonHashAssignError, @value unless @value.is_a?(Hash)
 
-        arg_check('block', block.call(@value), Result)
+        ArgCheck.arg_check('block', block.call(@value), Result)
           .map { |k| @value.merge(name => k) }
       end
 

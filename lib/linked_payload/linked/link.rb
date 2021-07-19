@@ -31,9 +31,9 @@ module LinkedPayload
       end
 
       field :rel, VALID_REL, -> { @args[:rel] }
-      field :href, is(String), -> { @args[:href] }
+      field :href, String, -> { @args[:href] }
       field :method, VALID_METHOD, -> { @args.fetch(:method, 'get') }
-      field :type, is(String), -> { @args.fetch(:type, 'application/json') }
+      field :type, String, -> { @args.fetch(:type, 'application/json') }
     end
   end
 end

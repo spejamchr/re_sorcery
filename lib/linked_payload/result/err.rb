@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
+require 'linked_payload/arg_check'
+
 module LinkedPayload
   module Result
     class Err
       include Result
-      include LinkedPayload::Error::ArgCheck
 
       def initialize(err)
         @err = err
@@ -23,7 +24,7 @@ module LinkedPayload
       end
 
       def or_else(&block)
-        arg_check('block', block.call(@err), Result)
+        ArgCheck.arg_check('block', block.call(@err), Result)
       end
 
       def assign(_name)

@@ -79,6 +79,15 @@ module LinkedPayload
         errs c, [:b, 'b', 1, [nil], { nil => nil }, Set.new([1]), (0...1)]
       end
 
+      def test_one_of_with_human_bools
+        human_bool = one_of('yes', 'no')
+
+        assert_equal ok('yes'), human_bool.check('yes')
+        assert_equal ok('no'), human_bool.check('no')
+
+        errs human_bool, ['other', 'maybe', 'yes ', "no\n"]
+      end
+
       def test_array_with_checker
         c = array(is(Numeric))
 

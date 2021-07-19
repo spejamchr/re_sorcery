@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require 'linked_payload/checked'
+require 'linked_payload/fielded'
 require 'linked_payload/checker/builtin_checkers'
 
 module LinkedPayload
   module Linked
     class Link
-      include Checked
+      include Fielded
       extend Checker::BuiltinCheckers
 
       VALID_REL = %w[
@@ -31,11 +31,9 @@ module LinkedPayload
       end
 
       field :rel, VALID_REL, -> { @args[:rel] }
-      field :href, string, -> { @args[:href] }
+      field :href, is(String), -> { @args[:href] }
       field :method, VALID_METHOD, -> { @args.fetch(:method, 'get') }
-      field :type, string, -> { @args.fetch(:type, 'application/json') }
+      field :type, is(String), -> { @args.fetch(:type, 'application/json') }
     end
-
-    private_constant :Link
   end
 end

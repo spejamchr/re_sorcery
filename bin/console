@@ -16,8 +16,8 @@ class Horse
     @children = children
   end
 
-  field :name, string, -> { @name }
-  field :age, numeric, -> { @age }
+  field :name, is(String), -> { @name }
+  field :age, is(Numeric), -> { @age }
   field :children, array(::Horse), -> { @children }
 end
 
@@ -31,9 +31,9 @@ class Person
     @horses = horses
   end
 
-  field :name, string, -> { @name }
-  field :age, numeric, -> { @age }
-  field :kind, one_of(eql("owner"), eql("racer")), -> { @kind }
+  field :name, is(String), -> { @name }
+  field :age, is(Numeric), -> { @age }
+  field :kind, one_of(is("owner"), is("racer")), -> { @kind }
   field :horses, array(::Horse), -> { @horses }
 
   link -> { nil }

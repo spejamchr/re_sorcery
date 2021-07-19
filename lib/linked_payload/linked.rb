@@ -5,12 +5,11 @@ require 'linked_payload/linked/link'
 module LinkedPayload
   module Linked
     module ClassMethods
+      include LinkedPayload::Error::ArgCheck
       attr_reader :links
 
-      def link(pro)
-        raise "link expected `pro` to be Proc, but got #{pro.class}" unless pro.is_a?(Proc)
-
-        (@links ||= []) << pro
+      def link(link_maker)
+        (@links ||= []) << arg_check('link_maker', link_maker, Proc)
       end
     end
 
@@ -19,15 +18,19 @@ module LinkedPayload
     end
 
     def links
+      bad_val = lambda(index, value) do
+        err("Expected link_maker at index #{index} to return Hash or nil, but got #{value.class}")
+      end
+
       (self.class.links || []).each_with_index.inject(ok([])) do |result_array, (pro, index)|
         result_array.and_then do |ok_array|
-          result = instance_exec(&pro)
-          next result_array if result.nil?
-          next err("Expected link Proc at index #{index} to return Hash or nil, but got #{result.class}") unless result.is_a?(Hash)
+          value = instance_exec(&pro)
+          next result_array if value.nil?
+          next bad_val.call(index, value) unless value.is_a?(Hash)
 
-          Link.new(result).checked
+          Link.new(value).fields
             .map { |link| ok_array << link }
-            .map_error { |error| "Error with link at index #{index}: #{error}" }
+            .map_error { |error| "Error with Link at index #{index}: #{error}" }
         end
       end
     end

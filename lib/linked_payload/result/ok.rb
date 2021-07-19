@@ -4,19 +4,24 @@ module LinkedPayload
   module Result
     class Ok
       include Result
+      include LinkedPayload::Error::ArgCheck
+
+      class NonHashAssignError < LinkedPayload::Error::LinkedPayloadError
+        def initialize(value)
+          @value = value
+        end
+
+        def message
+          "Result#assign can only be used when the @value is a Hash, but was a(n) #{@value.class}"
+        end
+      end
 
       def initialize(value)
         @value = value
       end
 
       def and_then(&block)
-        result = block.call(@value)
-        case result
-        when Result::Ok, Result::Err
-          result
-        else
-          raise "block in Result::Ok#and_then must return Result, but returned #{result.class}"
-        end
+        arg_check('block', block.call(@value), Result)
       end
 
       def map(&block)
@@ -32,15 +37,10 @@ module LinkedPayload
       end
 
       def assign(name, &block)
-        raise "Assign can only be used on results with values of Hashes" unless @value.is_a?(Hash)
+        raise NonHashAssignError, @value unless @value.is_a?(Hash)
 
-        result = block.call(@value)
-        case result
-        when Result::Ok, Result::Err
-          result.map { |k| @value.merge(name => k) }
-        else
-          raise "block in Result::Ok#assign must return Result, but returned #{result.class}"
-        end
+        arg_check('block', block.call(@value), Result)
+          .map { |k| @value.merge(name => k) }
       end
 
       def ==(other)

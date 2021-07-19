@@ -4,6 +4,7 @@ module LinkedPayload
   module Result
     class Err
       include Result
+      include LinkedPayload::Error::ArgCheck
 
       def initialize(err)
         @err = err
@@ -22,13 +23,11 @@ module LinkedPayload
       end
 
       def or_else(&block)
-        result = block.call(@err)
-        case result
-        when Result::Ok, Result::Err
-          result
-        else
-          raise "block in Result::Err#or_else must return Result, but returned #{result.class}"
-        end
+        arg_check('block', block.call(@err), Result)
+      end
+
+      def assign(_name)
+        self
       end
 
       def ==(other)
@@ -40,10 +39,6 @@ module LinkedPayload
           kind: :err,
           value: @err,
         }
-      end
-
-      def assign(_name)
-        self
       end
     end
   end

@@ -37,12 +37,14 @@ module LinkedPayload
       end
     end
 
-    def self.is(klass)
-      class_or_module = klass.is_a?(Class) || klass.is_a?(Module)
-      return klass if klass.is_a?(Checker)
-      raise "expected Checker, Class, or Module, but got #{klass.class}" unless class_or_module
+    def self.is(thing)
+      return thing if thing.is_a?(Checker)
 
-      new { |n| n.is_a?(klass) ? ok(n) : err("Expected #{klass}, but got #{n.class}") }
+      if thing.is_a?(Class) || thing.is_a?(Module)
+        new { |n| n.is_a?(thing) ? ok(n) : err("Expected a(n) #{thing}, but got a(n) #{n.class}") }
+      else
+        new { |n| n == thing ? ok(n) : err("Expected #{thing.inspect}, but got #{n.inspect}") }
+      end
     end
 
     def initialize(&block)

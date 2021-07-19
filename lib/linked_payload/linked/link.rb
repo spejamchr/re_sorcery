@@ -14,7 +14,7 @@ module LinkedPayload
         create
         update
         destroy
-      ].map { |s| eql(s) }.yield_self { |arr| one_of(arr) }
+      ].yield_self { |arr| one_of(*arr) }
       private_constant :VALID_REL
 
       VALID_METHOD = %w[
@@ -23,7 +23,7 @@ module LinkedPayload
         patch
         put
         delete
-      ].map { |s| eql(s) }.yield_self { |arr| one_of(arr) }
+      ].yield_self { |arr| one_of(*arr) }
       private_constant :VALID_METHOD
 
       def initialize(args)

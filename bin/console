@@ -33,7 +33,7 @@ class Person
 
   field :name, string, -> { @name }
   field :age, numeric, -> { @age }
-  field :kind, one_of([eql("owner"), eql("racer")]), -> { @kind }
+  field :kind, one_of(eql("owner"), eql("racer")), -> { @kind }
   field :horses, array(::Horse), -> { @horses }
 
   link -> { nil }

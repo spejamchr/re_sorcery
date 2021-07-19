@@ -14,7 +14,8 @@ module LinkedPayload
       #
       # `Hash` is intentionally *not* `deeply_fielded`. Create a `Fielded` class instead.
       #
-      # Similarly, `nil` is intentionally *not* `deeply_fielded`. Don't use it.
+      # Similarly, `nil` is intentionally *not* `deeply_fielded`. Use a type
+      # that more meaningfully represents an empty value instead.
       def deeply_fielded(obj)
         case obj
         when Fielded
@@ -23,6 +24,8 @@ module LinkedPayload
           ok(obj)
         when Array
           deeply_fielded_array(obj)
+        when NilClass
+          err("`nil` cannot be returned as a `field`")
         else
           err("Cannot deeply check #{obj.class}")
         end
@@ -46,6 +49,11 @@ module LinkedPayload
 
       attr_reader :fields
 
+      # Set a field for instances of a class
+      #
+      # There is intentionally no way to make fields optionally nil. Use a type
+      # that more meaningfully represents an empty value instead.
+      #
       # @param [Symbol] name
       # @param [Checker] type
       # @param [Proc] pro: in the context of an instance of the class, return the value of the field
@@ -62,6 +70,11 @@ module LinkedPayload
       base.extend(ClassMethods)
     end
 
+    # Returns the *checked* fields of the object, wrapped in a `Result`
+    #
+    # If all the `Checker`s pass, this will return an `Ok`. If any of them
+    # fail, it will return an `Err` instead.
+    #
     # @return [Result<String, Hash>]
     def fields
       (self.class.fields || []).inject(ok({})) do |result_hash, (name, field_hash)|

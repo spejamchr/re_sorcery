@@ -10,31 +10,50 @@ module LinkedPayload
 
     class SelfLink
       include Linked
-      link -> { SELF_LINK }
+      links do
+        link 'self', '/me', 'get', 'application/json'
+      end
+    end
+
+    class MyObject
+      include Linked
+      attr_reader :id, :current_user
+
+      def initialize(id, current_user)
+        @id = id
+        @current_user = current_user
+      end
+
+      links do
+        link 'self', "/my_objects/#{id}"
+        link 'update', "/my_objects/#{id}", 'put' if current_user.can_update?(self)
+        link 'destroy', "/my_objects/#{id}", 'delete' if current_user.can_destroy?(self)
+      end
     end
 
     class EasySelfLink
       include Linked
-      link -> { { rel: 'self', href: '/me' } }
+      links do
+        link 'self', '/me'
+      end
     end
 
     class ConditionalLink
       include Linked
-      attr_reader :use_link
+      attr_accessor :use_link
       def initialize(use_link)
         @use_link = use_link
       end
-      link -> { use_link ? { rel: 'self', href: '/me' } : nil }
+      links do
+        link 'self', '/me' if use_link
+      end
     end
 
     class InvalidRelLink
       include Linked
-      link -> { { rel: 'not allowed', href: '/me' } }
-    end
-
-    class NonHashLink
-      include Linked
-      link -> { 'not a hash' }
+      links do
+        link 'not allowed', '/me'
+      end
     end
 
     def test_links_for_self_link
@@ -57,17 +76,24 @@ module LinkedPayload
       assert_kind_of Err, InvalidRelLink.new.links
     end
 
-    def test_links_for_non_hash_link
-      assert_kind_of Err, NonHashLink.new.links
+    def test_links_multiple_times_stay_the_same
+      self_link = SelfLink.new
+      assert_equal ok([SELF_LINK]), self_link.links
+      assert_equal ok([SELF_LINK]), self_link.links
+      assert_equal ok([SELF_LINK]), self_link.links
+      assert_equal ok([SELF_LINK]), self_link.links
     end
 
-    def test_non_proc_link_raises_on_class_definition
-      assert_raises(LinkedPayload::Error::LinkedPayloadError) do
-        Class.new do
-          include Linked
-          link SELF_LINK
-        end
-      end
+    def test_links_block_is_not_cached
+      conditional_link = ConditionalLink.new(true)
+      assert_equal ok([SELF_LINK]), conditional_link.links
+      assert_equal ok([SELF_LINK]), conditional_link.links
+
+      conditional_link.use_link = false
+      assert_equal ok([]), conditional_link.links
+
+      conditional_link.use_link = true
+      assert_equal ok([SELF_LINK]), conditional_link.links
     end
   end
 end

@@ -82,5 +82,15 @@ module LinkedPayload
     def test_fields_for_broken
       assert_kind_of Err, BrokenString.new.fields
     end
+
+    def test_nil_cannot_be_returned_in_a_field
+      assert_raises(LinkedPayload::Error::LinkedPayloadError) do
+        Class.new do
+          include Fielded
+          extend Checker::BuiltinCheckers
+          field :nil, is(nil), -> { nil }
+        end
+      end
+    end
   end
 end

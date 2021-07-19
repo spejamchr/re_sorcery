@@ -35,6 +35,9 @@ module LinkedPayload
   #
   # All three of these implementations of `is_string` are equivalent.
   #
+  # Note that this library has strong opinions against using `nil`, so `nil`
+  # will never pass `check`.
+  #
   class Checker
     include LinkedPayload::Result
 
@@ -44,10 +47,11 @@ module LinkedPayload
     # When `thing` is a Checker, return it unchanged. When `thing` is a Class
     # or Module, create a Checker that checks whether an object `is_a?(thing)`.
     # Otherwise, create a Checker that checks if an object equals `thing`
-    # (`==`).
+    # (using `==`).
     #
     # @return [Checker]
     def self.is(thing)
+      raise LinkedPayload::Error::ArgumentError, "Do not use `nil`" if thing.nil? || thing == NilClass
       return thing if thing.is_a?(Checker)
 
       if thing.is_a?(Class) || thing.is_a?(Module)
@@ -61,7 +65,9 @@ module LinkedPayload
       @block = block
     end
 
-    # Check that an `unknown` object satisfies some property
+    # Use the checker to check that an `unknown` object satisfies some property
+    #
+    # Note that `ok(nil)` will never be returned.
     #
     # @param [unknown] unknown
     # @return [Result]
@@ -74,7 +80,7 @@ module LinkedPayload
         ok(unknown)
       else
         err(result)
-      end
+      end.and_then { |r| r.nil? ? err("Do not return `nil` on a successful check!") : ok(r) }
     end
   end
 end

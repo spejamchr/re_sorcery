@@ -56,10 +56,6 @@ module LinkedPayload
       assert_equal err("Expected String, got Symbol"), is_string.check(:symbol)
     end
 
-    def test_checker_rejects_is_nil
-      assert_raises(LinkedPayload::Error::LinkedPayloadError) { Checker.is(nil) }
-    end
-
     def test_checker_will_not_successfullly_return_nil
       always = Checker.new { true }
       assert_kind_of Err, always.check(nil)

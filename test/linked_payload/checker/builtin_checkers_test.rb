@@ -88,6 +88,10 @@ module LinkedPayload
         errs human_bool, ['other', 'maybe', 'yes ', "no\n"]
       end
 
+      def test_is_rejects_nil
+        assert_raises(LinkedPayload::Error::LinkedPayloadError) { is(nil) }
+      end
+
       def test_array_with_checker
         c = array(is(Numeric))
 

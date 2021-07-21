@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require 'linked_payload/arg_check'
+require 'linked_payload/checker/builtin_checkers'
 require 'linked_payload/fielded/expand_internal_fields'
 require 'linked_payload/result'
 
 module LinkedPayload
   module Fielded
     include Result
+    include LinkedPayload::Checker::BuiltinCheckers
 
     module ClassMethods
       # Set a field for instances of a class
@@ -22,7 +24,7 @@ module LinkedPayload
         ArgCheck.arg_check('name', name, Symbol)
         ArgCheck.arg_check('pro', pro, Proc)
 
-        (@fields ||= {})[name] = { type: Checker.is(type), pro: pro }
+        (@fields ||= {})[name] = { type: is(type), pro: pro }
       end
     end
 

@@ -55,32 +55,32 @@ module LinkedPayload
         end
       end
 
-      def test_one_of_with_checkers
-        c = one_of(is('a'), is('b'), is('c'), is('d'), is(Numeric))
+      def test_is_with_many_checkers
+        c = is(is('a'), is('b'), is('c'), is('d'), is(Numeric))
 
         oks c, ['a', 'b', 'c', 'd', 1, 1.1, 2i, 3/4r]
 
         errs c, ['e', 'f', :sym, [], {}, String, Numeric]
       end
 
-      def test_one_of_with_classes
-        c = one_of(String, Symbol)
+      def test_is_with_many_classes
+        c = is(String, Symbol)
 
         oks c, ['a', 'b', :c, :d]
 
         errs c, [String, Symbol, 1, 2, ['hi'], [:there]]
       end
 
-      def test_one_of_with_objects
-        c = one_of(:a, 'a', 0, [], {}, Set.new, (0..1))
+      def test_is_with_many_objects
+        c = is(:a, 'a', 0, [], {}, Set.new, (0..1))
 
         oks c, [:a, 'a', 0, [], {}, Set.new, (0..1)]
 
         errs c, [:b, 'b', 1, [nil], { nil => nil }, Set.new([1]), (0...1)]
       end
 
-      def test_one_of_with_human_bools
-        human_bool = one_of('yes', 'no')
+      def test_is_with_multiple_human_bools
+        human_bool = is('yes', 'no')
 
         assert_equal ok('yes'), human_bool.check('yes')
         assert_equal ok('no'), human_bool.check('no')

@@ -37,7 +37,7 @@ module LinkedPayload
     #
     # @return [Result<String, Hash>]
     def fields
-      self.class.instance_exec { @fields || [] }.inject(ok({})) do |result_hash, (name, field_hash)|
+      self.class.instance_exec { @fields ||= [] }.inject(ok({})) do |result_hash, (name, field_hash)|
         result_hash.and_then do |ok_hash|
           field_hash[:type].check(instance_exec(&field_hash[:pro]))
             .and_then { |checked| ExpandInternalFields.expand(checked) }

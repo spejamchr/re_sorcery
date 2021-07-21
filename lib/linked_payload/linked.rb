@@ -40,15 +40,8 @@ module LinkedPayload
       base.extend(ClassMethods)
     end
 
-    # Define a `Link` for an object
-    #
-    # @see `LinkedPayload::Linked::Link#initialize` for param types
-    def link(rel, href, method = 'get', type = 'application/json')
-      (@_created_links ||= []) << Link.new(rel: rel, href: href, method: method, type: type).fields
-    end
-
     def links
-      instance_exec(&self.class.instance_exec { @links_proc || -> {} })
+      instance_exec(&self.class.instance_exec { @links_proc ||= -> {} })
       created_links = (@_created_links ||= [])
       @_created_links = [] # Clear out so `links` can run cleanly next time
 
@@ -59,6 +52,15 @@ module LinkedPayload
             .map_error { |error| "Error with Link at index #{index}: #{error}" }
         end
       end
+    end
+
+    private
+
+    # Define a `Link` for an object
+    #
+    # @see `LinkedPayload::Linked::Link#initialize` for param types
+    def link(rel, href, method = 'get', type = 'application/json')
+      (@_created_links ||= []) << Link.new(rel: rel, href: href, method: method, type: type).fields
     end
   end
 end

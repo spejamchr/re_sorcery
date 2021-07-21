@@ -18,6 +18,12 @@ module LinkedPayload
     base.extend Checker::BuiltinCheckers
   end
 
+  def self.prepended(base)
+    base.extend Fielded::ClassMethods
+    base.extend Linked::ClassMethods
+    base.extend Checker::BuiltinCheckers
+  end
+
   def resource
     ok({})
       .assign(:payload) { fields }

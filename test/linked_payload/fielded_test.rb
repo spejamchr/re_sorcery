@@ -21,7 +21,7 @@ module LinkedPayload
     ArrayNested = test_in_class { field :sfs, array(StringField), -> { [StringField.new] * 2 } }
 
     ArrayOfStringOrNumber = test_in_class do
-      field :c, array(one_of(StringField, NumberField)), -> { [StringField.new, NumberField.new] }
+      field :c, array(is(StringField, NumberField)), -> { [StringField.new, NumberField.new] }
     end
 
     BrokenString = test_in_class { field :broken, String, -> { 0 } }
@@ -34,7 +34,7 @@ module LinkedPayload
       assert_equal ok(sfs: [{ a: 'string' }, { a: 'string' }]), ArrayNested.new.fields
     end
 
-    def test_fields_for_one_of_nested
+    def test_fields_for_is_nested
       assert_equal ok(c: [{ a: 'string' }, { b: 0 }]), ArrayOfStringOrNumber.new.fields
     end
 

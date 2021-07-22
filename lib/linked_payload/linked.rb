@@ -30,7 +30,7 @@ module LinkedPayload
       #       end
       #     end
       #
-      # The block is not cached.
+      # The result of calling the block is not cached.
       def links(&block)
         @links_proc = block
       end

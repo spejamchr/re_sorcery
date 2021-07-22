@@ -56,6 +56,10 @@ class LinkedPayloadTest < Minitest::Test
     end
   end
 
+  class Empty
+    include LinkedPayload
+  end
+
   def correct_dynamic_link_as_json(href)
     {
       kind: :ok,
@@ -94,5 +98,9 @@ class LinkedPayloadTest < Minitest::Test
   def test_invalid_dynamic_link_try_new_prepended
     value = :symbols_are_not_strings
     assert_raises(LinkedPayload::Error::LinkedPayloadError) { DynamicLink.try_new(value) }
+  end
+
+  def test_empty_linked_payload_works_fine
+    assert_equal ok(payload: {}, links: []), Empty.new.resource
   end
 end

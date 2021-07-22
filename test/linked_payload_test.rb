@@ -47,7 +47,7 @@ class LinkedPayloadTest < Minitest::Test
   end
 
   class DynamicLink
-    include LinkedPayload
+    prepend LinkedPayload
     def initialize(href)
       @href = href
     end
@@ -71,9 +71,9 @@ class LinkedPayloadTest < Minitest::Test
     assert_equal correct_dynamic_payload_as_json(value), DynamicPayload.new(value).as_json
   end
 
-  def test_invalid_dynamic_payload
+  def test_invalid_dynamic_payload_included
     value = :symbols_are_not_strings
-    assert_equal :err, DynamicPayload.new(value).as_json[:kind]
+    assert_raises(LinkedPayload::Error::LinkedPayloadError) { DynamicPayload.new(value) }
   end
 
   def test_valid_dynamic_link
@@ -81,8 +81,18 @@ class LinkedPayloadTest < Minitest::Test
     assert_equal correct_dynamic_link_as_json(value), DynamicLink.new(value).as_json
   end
 
-  def test_invalid_dynamic_link
+  def test_invalid_dynamic_link_prepended
     value = :symbols_are_not_strings
-    assert_equal :err, DynamicLink.new(value).as_json[:kind]
+    assert_raises(LinkedPayload::Error::LinkedPayloadError) { DynamicLink.new(value) }
+  end
+
+  def test_valid_dynamic_link_try_new
+    value = "/link"
+    assert_kind_of Ok, DynamicLink.try_new(value)
+  end
+
+  def test_invalid_dynamic_link_try_new_prepended
+    value = :symbols_are_not_strings
+    assert_raises(LinkedPayload::Error::LinkedPayloadError) { DynamicLink.try_new(value) }
   end
 end

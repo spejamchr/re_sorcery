@@ -7,32 +7,32 @@ require 'linked_payload/error'
 require 'linked_payload/linked'
 require 'linked_payload/result'
 require 'linked_payload/version'
+require 'linked_payload/resourceable'
 
 module LinkedPayload
-  include Fielded
-  include Linked
-  include Result
+  include Resourceable
+
+  module ClassMethods
+    def try_new(*args)
+      instance = new(*args)
+      instance.resource.map { instance }
+    end
+
+    def new(*args)
+      instance = super(*args)
+      instance.resource.map { instance }.map_error { |e| raise Error::ArgumentError, e }
+      instance
+    end
+  end
 
   def self.included(base)
     base.extend Fielded::ClassMethods
     base.extend Linked::ClassMethods
     base.extend Checker::BuiltinCheckers
+    base.extend ClassMethods
   end
 
   def self.prepended(base)
-    base.extend Fielded::ClassMethods
-    base.extend Linked::ClassMethods
-    base.extend Checker::BuiltinCheckers
-  end
-
-  def resource
-    ok({})
-      .assign(:payload) { fields }
-      .assign(:links) { links }
-      .as_json
-  end
-
-  def as_json(*)
-    resource
+    included(base)
   end
 end

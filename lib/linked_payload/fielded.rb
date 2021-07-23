@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'linked_payload/arg_check'
+require 'linked_payload/checker'
 require 'linked_payload/checker/builtin_checkers'
 require 'linked_payload/fielded/expand_internal_fields'
 require 'linked_payload/result'
@@ -11,6 +12,8 @@ module LinkedPayload
     include LinkedPayload::Checker::BuiltinCheckers
 
     module ClassMethods
+      include Checker::BuiltinCheckers
+
       # Set a field for instances of a class
       #
       # There is intentionally no way to make fields optionally nil. Use a type

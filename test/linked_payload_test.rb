@@ -77,7 +77,7 @@ class LinkedPayloadTest < Minitest::Test
 
   def test_invalid_dynamic_payload_included
     value = :symbols_are_not_strings
-    assert_raises(LinkedPayload::Error::LinkedPayloadError) { DynamicPayload.new(value) }
+    assert_equal :err, DynamicPayload.new(value).as_json[:kind]
   end
 
   def test_valid_dynamic_link
@@ -87,17 +87,7 @@ class LinkedPayloadTest < Minitest::Test
 
   def test_invalid_dynamic_link_prepended
     value = :symbols_are_not_strings
-    assert_raises(LinkedPayload::Error::LinkedPayloadError) { DynamicLink.new(value) }
-  end
-
-  def test_valid_dynamic_link_try_new
-    value = "/link"
-    assert_kind_of Ok, DynamicLink.try_new(value)
-  end
-
-  def test_invalid_dynamic_link_try_new_prepended
-    value = :symbols_are_not_strings
-    assert_raises(LinkedPayload::Error::LinkedPayloadError) { DynamicLink.try_new(value) }
+    assert_equal :err, DynamicLink.new(value).as_json[:kind]
   end
 
   def test_empty_linked_payload_works_fine

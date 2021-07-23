@@ -56,10 +56,6 @@ class LinkedPayloadTest < Minitest::Test
     end
   end
 
-  class Empty
-    include LinkedPayload
-  end
-
   def correct_dynamic_link_as_json(href)
     {
       kind: :ok,
@@ -90,7 +86,88 @@ class LinkedPayloadTest < Minitest::Test
     assert_equal :err, DynamicLink.new(value).as_json[:kind]
   end
 
+  class Empty
+    include LinkedPayload
+  end
+
   def test_empty_linked_payload_works_fine
     assert_equal ok(payload: {}, links: []), Empty.new.resource
+  end
+
+  class Child
+    include LinkedPayload
+    attr_reader :id, :name
+    def initialize(id, name)
+      @id = id
+      @name = name
+    end
+    field :id, Numeric, -> { id }
+    field :name, String, -> { name }
+    links { link 'self', "/children/#{id}" }
+  end
+
+  class ParentChildren
+    include LinkedPayload
+    attr_reader :parent, :children
+    def initialize(parent, children)
+      @parent = parent
+      @children = children
+    end
+    field :children, array(Child), -> { children }
+    links { link 'self', "parents/#{parent.id}/children" }
+  end
+
+  class Parent
+    include LinkedPayload
+    attr_reader :id, :name, :children
+    def initialize(id, name, children)
+      @id = id
+      @name = name
+      @children = children
+    end
+    field :id, Numeric, -> { id }
+    field :name, String, -> { name }
+    field :parent_children, ParentChildren, -> { ParentChildren.new(self, children) }
+    links { link 'self', "/parents/#{id}" }
+  end
+
+  def test_nested_resources
+    thing1 = Child.new(1, 'thing1')
+    thing2 = Child.new(2, 'thing2')
+    the_cat_in_the_hat = Parent.new(1, 'The Cat in the Hat', [thing1, thing2])
+    correct = {
+      kind: :ok,
+      value: {
+        payload: {
+          id: 1,
+          name: "The Cat in the Hat",
+          parent_children: {
+            payload: {
+              children: [
+                {
+                  payload: { id: 1, name: "thing1" },
+                  links: [
+                    { rel: "self", href: "/children/1", method: "get", type: "application/json" },
+                  ],
+                },
+                {
+                  payload: { id: 2, name: "thing2" },
+                  links: [
+                    { rel: "self", href: "/children/2", method: "get", type: "application/json" },
+                  ],
+                },
+              ],
+            },
+            links: [
+              { rel: "self", href: "parents/1/children", method: "get", type: "application/json" },
+            ],
+          },
+        },
+        links: [{ rel: "self", href: "/parents/1", method: "get", type: "application/json" }],
+      },
+    }
+    assert_equal correct, the_cat_in_the_hat.as_json
+    assert_equal 'thing1', the_cat_in_the_hat.as_json.dig(:value, :payload, :parent_children, :payload, :children, 0, :payload, :name)
+    assert_equal 'self', the_cat_in_the_hat.as_json.dig(:value, :payload, :parent_children, :payload, :children, 0, :links, 0, :rel)
   end
 end

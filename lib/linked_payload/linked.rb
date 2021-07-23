@@ -7,6 +7,8 @@ module LinkedPayload
     include LinkedPayload::Result
 
     module ClassMethods
+      private
+
       # Define a set of `Link`s for a class
       #
       # The block is evaluated in the context of an instance of the class, so

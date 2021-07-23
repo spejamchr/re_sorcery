@@ -9,6 +9,7 @@ require "pry"
 
 class Horse
   include LinkedPayload
+  attr_reader :name, :age, :children
 
   def initialize(name, age, children)
     @name = name
@@ -16,13 +17,34 @@ class Horse
     @children = children
   end
 
-  field :name, String, -> { @name }
-  field :age, Numeric, -> { @age }
-  field :children, array(Horse), -> { @children }
+  field :name, String, -> { name }
+  field :age, Numeric, -> { age }
+  field :children, array(Horse), -> { children }
+
+  links do
+    link 'self', "/horses/#{name}"
+  end
+end
+
+class HorseCollection
+  include LinkedPayload
+  attr_reader :person, :horses
+
+  def initialize(person, horses)
+    @person = person
+    @horses = horses
+  end
+
+  field :horses, array(Horse), -> { horses }
+
+  links do
+    link 'self', "/person/#{person.name}/horses" if person.kind == 'owner'
+  end
 end
 
 class Person
   include LinkedPayload
+  attr_reader :name, :age, :kind, :horses
 
   def initialize(name, age, kind, horses)
     @name = name
@@ -31,13 +53,13 @@ class Person
     @horses = horses
   end
 
-  field :name, String, -> { @name }
-  field :age, Numeric, -> { @age }
-  field :kind, is("owner", "racer"), -> { @kind }
-  field :horses, array(Horse), -> { @horses }
+  field :name, String, -> { name }
+  field :age, Numeric, -> { age }
+  field :kind, is("owner", "jockey"), -> { kind }
+  field :horses, HorseCollection, -> { HorseCollection.new(self, horses) }
 
   links do
-    link 'self', "/users/#{@name}"
+    link 'self', "/users/#{name}"
   end
 end
 
@@ -59,6 +81,10 @@ end
 
 def bob
   Person.new("Bob", 70, "owner", [dave, rigby, ruby])
+end
+
+def jockey
+  Person.new("Jack", 23, "jockey", [dave, ruby])
 end
 
 def bab

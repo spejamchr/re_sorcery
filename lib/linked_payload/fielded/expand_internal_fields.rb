@@ -15,8 +15,12 @@ module LinkedPayload
       # meaningfully represents an empty value instead.
       def self.expand(obj)
         case obj
+        when LinkedPayload
+          obj.resource
         when Fielded
           obj.fields
+        when Linked
+          obj.links
         when String, Numeric, Symbol, TrueClass, FalseClass
           ok(obj)
         when Array

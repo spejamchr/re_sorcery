@@ -14,6 +14,8 @@ module LinkedPayload
     module ClassMethods
       include Checker::BuiltinCheckers
 
+      private
+
       # Set a field for instances of a class
       #
       # There is intentionally no way to make fields optionally nil. Use a type

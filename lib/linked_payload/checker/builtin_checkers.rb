@@ -8,6 +8,8 @@ module LinkedPayload
     module BuiltinCheckers
       include Result
 
+      private
+
       # Check that an object is a thing (or one of a list of things)
       #
       # Convenience method for creating common types of `Checker`s.
@@ -59,8 +61,6 @@ module LinkedPayload
           end
         end
       end
-
-      private
 
       def make_checker_from(thing)
         nillish = thing.nil? || thing == NilClass

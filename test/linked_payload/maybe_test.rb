@@ -72,5 +72,10 @@ module LinkedPayload
     def test_nothing_as_json
       assert_equal({ kind: :nothing }, nothing.as_json)
     end
+
+    def test_nillable
+      assert_equal just(2), nillable(2)
+      assert_equal nothing, nillable(nil)
+    end
   end
 end

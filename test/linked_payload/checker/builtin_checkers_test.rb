@@ -6,6 +6,7 @@ module LinkedPayload
   class Checker
     class BuiltinCheckersTest < Minitest::Test
       include LinkedPayload::Result
+      include LinkedPayload::Maybe
       include LinkedPayload::Checker::BuiltinCheckers
 
       class MyString < String; end
@@ -124,6 +125,22 @@ module LinkedPayload
         oks c, [[], [1], [1, 1, 1, 1, 1, 1]]
 
         errs c, [[nil], [2], [1, 1, 1, 1, 2, 1, 1, 1]]
+      end
+
+      def test_maybe_with_checker
+        c = maybe(is(Numeric))
+
+        oks c, [just(1), just(2.3), just(-1), just(5i), just(4/5r), nothing]
+
+        errs c, [just('hi'), just(:sym), just([8])]
+      end
+
+      def test_maybe_with_several_types
+        c = maybe(Numeric, Symbol, 'hi', 'there')
+
+        oks c, [just(1), just(2.3), just(-1), just(:sym), just('hi'), just('there'), nothing]
+
+        errs c, [just('no'), just([:sym]), just({ key: 8 })]
       end
     end
   end

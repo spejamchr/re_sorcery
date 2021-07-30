@@ -4,44 +4,44 @@ require 'linked_payload/arg_check'
 require 'linked_payload/error'
 
 module LinkedPayload
-  module Result
-    class Ok
-      include Result
+  module Maybe
+    class Just
+      include Maybe
 
       def initialize(value)
         @value = value
       end
 
       def and_then(&block)
-        ArgCheck.arg_check('block', block.call(@value), Result)
+        ArgCheck.arg_check('block', block.call(@value), Maybe)
       end
 
       def map(&block)
-        ok(block.call(@value))
-      end
-
-      def map_error
-        self
+        just(block.call(@value))
       end
 
       def or_else
         self
       end
 
+      def get_or_else
+        @value
+      end
+
       def assign(name, &block)
         raise Error::NonHashAssignError, @value unless @value.is_a?(Hash)
 
-        ArgCheck.arg_check('block', block.call(@value), Result)
+        ArgCheck.arg_check('block', block.call(@value), Maybe)
           .map { |k| @value.merge(name => k) }
       end
 
       def ==(other)
-        other.class == Result::Ok && other.instance_eval { @value } == @value
+        other.class == Maybe::Just && other.instance_eval { @value } == @value
       end
 
       def as_json(*)
         {
-          kind: :ok,
+          kind: :just,
           value: @value,
         }
       end

@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require 'linked_payload/result'
+require 'linked_payload/maybe'
 
 module LinkedPayload
   class Checker
     # Common checkers implemented here for convenience
     module BuiltinCheckers
       include Result
+      include Maybe
 
       private
 
@@ -45,10 +47,11 @@ module LinkedPayload
 
       # Check that an object is an array of objects that pass the checker `is(thing)`
       #
-      # @see `is` for details
+      # @param at_least_one_thing @see `is` for details
+      # @param other_things @see `is` for details
       # @return [Checker]
-      def array(thing)
-        checker = is(thing)
+      def array(at_least_one_thing, *other_things)
+        checker = is(at_least_one_thing, *other_things)
         Checker.new do |instance|
           is(Array).check(instance).and_then do |arr|
             arr.each_with_index.inject(ok([])) do |result_array, (unknown, index)|
@@ -58,6 +61,20 @@ module LinkedPayload
                   .map_error { |error| "Error at index `#{index}` of Array: #{error}" }
               end
             end
+          end
+        end
+      end
+
+      # Check that an object is a Maybe whose `value` passes some `Checker`
+      #
+      # @param at_least_one_thing @see `is` for details
+      # @param other_things @see `is` for details
+      # @return [Checker]
+      def maybe(at_least_one_thing, *other_things)
+        checker = is(at_least_one_thing, *other_things)
+        Checker.new do |instance|
+          is(Maybe).check(instance).and_then do |maybe|
+            maybe.map { |v| checker.check(v) }.get_or_else { ok(nothing) }
           end
         end
       end

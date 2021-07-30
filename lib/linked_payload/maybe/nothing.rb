@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
-require 'linked_payload/arg_check'
-
 module LinkedPayload
   module Maybe
     class Nothing
       include Maybe
+      include Fielded
+
+      field :kind, :nothing, -> { :nothing }
 
       def and_then
         self

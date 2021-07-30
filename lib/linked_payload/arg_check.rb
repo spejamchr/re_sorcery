@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'linked_payload/error'
-
 module LinkedPayload
   module ArgCheck
     def self.arg_check(name, value, *types)

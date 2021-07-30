@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'linked_payload/result'
+require 'linked_payload/checker/builtin_checkers'
 
 module LinkedPayload
   # Check that an object satisfies some property

@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'linked_payload/arg_check'
-require 'linked_payload/error'
-
 module LinkedPayload
   module Result
     class Ok

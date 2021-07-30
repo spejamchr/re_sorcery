@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'linked_payload/result'
-require 'linked_payload/maybe'
-
 module LinkedPayload
   class Checker
     # Common checkers implemented here for convenience
@@ -74,7 +71,9 @@ module LinkedPayload
         checker = is(at_least_one_thing, *other_things)
         Checker.new do |instance|
           is(Maybe).check(instance).and_then do |maybe|
-            maybe.map { |v| checker.check(v) }.get_or_else { ok(nothing) }
+            maybe
+              .map { |v| checker.check(v).map { |c| just(c) } }
+              .get_or_else { ok(nothing) }
           end
         end
       end

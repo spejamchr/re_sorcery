@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'linked_payload/fielded'
-require 'linked_payload/checker/builtin_checkers'
-
 module LinkedPayload
   module Linked
     class Link

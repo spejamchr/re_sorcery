@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
-require 'linked_payload/arg_check'
-require 'linked_payload/error'
-
 module LinkedPayload
   module Maybe
     class Just
       include Maybe
+      include Fielded
+
+      field :kind, :just, -> { :just }
+      field :value, Checker.new { true }, -> { @value }
 
       def initialize(value)
         @value = value

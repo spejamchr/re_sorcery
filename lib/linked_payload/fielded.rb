@@ -1,14 +1,11 @@
 # frozen_string_literal: true
 
-require 'linked_payload/arg_check'
-require 'linked_payload/checker'
-require 'linked_payload/checker/builtin_checkers'
 require 'linked_payload/fielded/expand_internal_fields'
-require 'linked_payload/result'
 
 module LinkedPayload
   module Fielded
     include Result
+    include Maybe
     include LinkedPayload::Checker::BuiltinCheckers
 
     module ClassMethods

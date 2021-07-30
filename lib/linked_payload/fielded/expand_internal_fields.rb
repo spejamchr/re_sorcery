@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'linked_payload/result'
-
 module LinkedPayload
   module Fielded
     module ExpandInternalFields

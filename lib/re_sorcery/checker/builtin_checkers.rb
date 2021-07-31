@@ -37,7 +37,7 @@ module ReSorcery
 
         Checker.new do |instance|
           check_multiple(checkers, instance).map_error do |errors|
-            errors.count == 1 ? errors[0] : "all checkers in `is` failed: (#{errors.join(', ')})"
+            errors.count == 1 ? errors[0] : "all checkers in `is` failed: (#{errors.join(' | ')})"
           end
         end
       end

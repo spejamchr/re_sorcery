@@ -6,7 +6,6 @@ module ReSorcery
   module Fielded
     include Result
     include Maybe
-    include ReSorcery::Checker::BuiltinCheckers
 
     module ClassMethods
       include Checker::BuiltinCheckers
@@ -22,7 +21,7 @@ module ReSorcery
       # @param [Symbol] name
       # @param [arg of Checker.is] type @see `ReSorcery::Checker.is` for details
       # @param [Proc] pro: in the context of an instance of the class, return the value of the field
-      def field(name, type, pro)
+      def field(name, type, pro = -> { send(name) })
         ArgCheck.arg_check('name', name, Symbol)
         ArgCheck.arg_check('pro', pro, Proc)
 

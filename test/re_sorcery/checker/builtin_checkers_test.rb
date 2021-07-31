@@ -5,9 +5,7 @@ require "test_helper"
 module ReSorcery
   class Checker
     class BuiltinCheckersTest < Minitest::Test
-      include ReSorcery::Result
-      include ReSorcery::Maybe
-      include ReSorcery::Checker::BuiltinCheckers
+      include BuiltinCheckers
 
       class MyString < String; end
 

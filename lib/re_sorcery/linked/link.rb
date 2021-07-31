@@ -4,7 +4,6 @@ module ReSorcery
   module Linked
     class Link
       include Fielded
-      extend Checker::BuiltinCheckers
 
       VALID_REL = %w[
         self

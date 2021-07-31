@@ -4,7 +4,7 @@ require 're_sorcery/linked/link'
 
 module ReSorcery
   module Linked
-    include ReSorcery::Result
+    include Result
 
     module ClassMethods
       private

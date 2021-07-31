@@ -15,6 +15,5 @@ module ReSorcery
         "#assign can only be used when the @value is a Hash, but was a(n) #{@value.class}"
       end
     end
-
   end
 end

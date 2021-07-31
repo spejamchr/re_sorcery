@@ -4,7 +4,7 @@ require "test_helper"
 
 module ReSorcery
   class LinkedTest < Minitest::Test
-    include ReSorcery::Result
+    include Result
 
     SELF_LINK = { rel: 'self', href: '/me', method: 'get', type: 'application/json' }.freeze
 

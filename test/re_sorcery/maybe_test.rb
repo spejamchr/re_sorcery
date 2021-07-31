@@ -4,8 +4,7 @@ require "test_helper"
 
 module ReSorcery
   class MaybeTest < Minitest::Test
-    include ReSorcery::Maybe
-    extend ReSorcery::Maybe
+    include Maybe
 
     ADD_1 = ->(n) { n + 1 }
     DO_NOT_RUN = -> { raise "Shouldn't run" }

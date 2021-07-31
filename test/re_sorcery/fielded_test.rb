@@ -4,12 +4,11 @@ require "test_helper"
 
 module ReSorcery
   class FieldedTest < Minitest::Test
-    include ReSorcery::Result
+    include Result
 
     def self.test_in_class(&block)
       Class.new do
         include Fielded
-        extend Checker::BuiltinCheckers
         instance_exec(&block)
       end
     end
@@ -46,10 +45,39 @@ module ReSorcery
       assert_raises(ReSorcery::Error::ReSorceryError) do
         Class.new do
           include Fielded
-          extend Checker::BuiltinCheckers
           field :nil, is(nil), -> { nil }
         end
       end
+    end
+
+    class BlocklessForm
+      include Fielded
+      field :name, String
+      def name
+        "Albert"
+      end
+    end
+
+    def test_blockless_form_of_field
+      assert_equal ok(name: "Albert"), BlocklessForm.new.fields
+    end
+
+    class InvalidBlocklessForm
+      include Fielded
+      field :name, String
+      def name
+        :Albert
+      end
+    end
+
+    def test_invalid_blockless_form_of_field
+      assert_kind_of Err, InvalidBlocklessForm.new.fields
+    end
+
+    UndefinedBlocklessForm = test_in_class { field :name, String }
+
+    def test_undefined_blockless_form_of_field
+      assert_raises(NoMethodError) { UndefinedBlocklessForm.new.fields }
     end
   end
 end

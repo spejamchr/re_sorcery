@@ -17,9 +17,9 @@ class Horse
     @children = children
   end
 
-  field :name, String, -> { name }
-  field :age, Numeric, -> { age }
-  field :children, array(Horse), -> { children }
+  field :name, String
+  field :age, Numeric
+  field :children, array(Horse)
 
   links do
     link 'self', "/horses/#{name}"
@@ -35,7 +35,7 @@ class HorseCollection
     @horses = horses
   end
 
-  field :horses, array(Horse), -> { horses }
+  field :horses, array(Horse)
 
   links do
     link 'self', "/person/#{person.name}/horses" if person.kind == 'owner'
@@ -53,9 +53,9 @@ class Person
     @horses = horses
   end
 
-  field :name, String, -> { name }
-  field :age, Numeric, -> { age }
-  field :kind, is("owner", "jockey"), -> { kind }
+  field :name, String
+  field :age, Numeric
+  field :kind, is("owner", "jockey")
   field :horses, HorseCollection, -> { HorseCollection.new(self, horses) }
 
   links do

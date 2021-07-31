@@ -101,8 +101,8 @@ class ReSorceryTest < Minitest::Test
       @id = id
       @name = name
     end
-    field :id, Numeric, -> { id }
-    field :name, String, -> { name }
+    field :id, Numeric
+    field :name, String
     links { link 'self', "/children/#{id}" }
   end
 
@@ -113,7 +113,7 @@ class ReSorceryTest < Minitest::Test
       @parent = parent
       @children = children
     end
-    field :children, array(Child), -> { children }
+    field :children, array(Child)
     links { link 'self', "parents/#{parent.id}/children" }
   end
 
@@ -125,8 +125,8 @@ class ReSorceryTest < Minitest::Test
       @name = name
       @children = children
     end
-    field :id, Numeric, -> { id }
-    field :name, String, -> { name }
+    field :id, Numeric
+    field :name, String
     field :parent_children, ParentChildren, -> { ParentChildren.new(self, children) }
     links { link 'self', "/parents/#{id}" }
   end

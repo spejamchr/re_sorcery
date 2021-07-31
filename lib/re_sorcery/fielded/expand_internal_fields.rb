@@ -3,7 +3,7 @@
 module ReSorcery
   module Fielded
     module ExpandInternalFields
-      extend ReSorcery::Result
+      extend Result
 
       # Used internally to check deeply nested `Fielded` structures
       #

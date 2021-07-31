@@ -38,7 +38,7 @@ module ReSorcery
   # will never pass `check`.
   #
   class Checker
-    include ReSorcery::Result
+    include Result
 
     def initialize(&block)
       @block = block

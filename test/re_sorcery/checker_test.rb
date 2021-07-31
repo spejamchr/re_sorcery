@@ -4,7 +4,7 @@ require "test_helper"
 
 module ReSorcery
   class ResultTest < Minitest::Test
-    include ReSorcery::Result
+    include Result
 
     STUFF = [
       1,

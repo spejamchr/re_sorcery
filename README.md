@@ -1,7 +1,7 @@
-# LinkedPayload
+# ReSorcery
 
 Welcome to your new gem! In this directory, you'll find the files you need to be able to package up
-your Ruby library into a gem. Put your Ruby code in the file `lib/linked_payload`. To experiment
+your Ruby library into a gem. Put your Ruby code in the file `lib/re_sorcery`. To experiment
 with that code, run `bin/console` for an interactive prompt.
 
 TODO: Delete this and the text above, and describe your gem
@@ -11,7 +11,7 @@ TODO: Delete this and the text above, and describe your gem
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'linked_payload'
+gem 're_sorcery'
 ```
 
 And then execute:
@@ -20,7 +20,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install linked_payload
+    $ gem install re_sorcery
 
 ## Usage
 
@@ -39,7 +39,7 @@ will create a git tag for the version, push git commits and tags, and push the `
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/linked_payload.
+Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/re_sorcery.
 
 ## License
 

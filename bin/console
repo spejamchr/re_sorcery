@@ -1,14 +1,14 @@
 #!/usr/bin/env ruby
 
 require "bundler/setup"
-require "linked_payload"
+require "re_sorcery"
 require "pry"
 
 # You can add fixtures and/or initialization code here to make experimenting
 # with your gem easier. You can also use a different console, if you like.
 
 class Horse
-  include LinkedPayload
+  include ReSorcery
   attr_reader :name, :age, :children
 
   def initialize(name, age, children)
@@ -27,7 +27,7 @@ class Horse
 end
 
 class HorseCollection
-  include LinkedPayload
+  include ReSorcery
   attr_reader :person, :horses
 
   def initialize(person, horses)
@@ -43,7 +43,7 @@ class HorseCollection
 end
 
 class Person
-  include LinkedPayload
+  include ReSorcery
   attr_reader :name, :age, :kind, :horses
 
   def initialize(name, age, kind, horses)

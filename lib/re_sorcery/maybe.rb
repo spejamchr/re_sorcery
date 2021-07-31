@@ -12,7 +12,7 @@ module ReSorcery
       Nothing.new
     end
 
-    # If `value` is `nil`, return nothing; else, return `just(value)`
+    # Wrap a possibly-nil value in a `Maybe`
     #
     # @param value The value to wrap in a `Maybe`.
     # @return [Maybe]

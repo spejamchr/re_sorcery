@@ -3,7 +3,6 @@
 module ReSorcery
   module Maybe
     class Nothing
-      include Maybe
       include Fielded
 
       field :kind, :nothing, -> { :nothing }
@@ -17,7 +16,7 @@ module ReSorcery
       end
 
       def or_else(&block)
-        ArgCheck.arg_check('block', block.call, Maybe)
+        ArgCheck.arg_check('block', block.call, Just, Nothing)
       end
 
       def get_or_else(&block)
@@ -29,7 +28,7 @@ module ReSorcery
       end
 
       def ==(other)
-        other.class == Maybe::Nothing
+        other.class == Nothing
       end
 
       def as_json(*)

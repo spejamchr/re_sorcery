@@ -3,7 +3,6 @@
 module ReSorcery
   module Maybe
     class Just
-      include Maybe
       include Fielded
 
       field :kind, :just, -> { :just }
@@ -14,7 +13,7 @@ module ReSorcery
       end
 
       def and_then(&block)
-        ArgCheck.arg_check('block', block.call(@value), Maybe)
+        ArgCheck.arg_check('block', block.call(@value), Just, Nothing)
       end
 
       def map(&block)
@@ -32,12 +31,12 @@ module ReSorcery
       def assign(name, &block)
         raise Error::NonHashAssignError, @value unless @value.is_a?(Hash)
 
-        ArgCheck.arg_check('block', block.call(@value), Maybe)
+        ArgCheck.arg_check('block', block.call(@value), Just, Nothing)
           .map { |k| @value.merge(name => k) }
       end
 
       def ==(other)
-        other.class == Maybe::Just && other.instance_eval { @value } == @value
+        other.class == Just && other.instance_eval { @value } == @value
       end
 
       def as_json(*)

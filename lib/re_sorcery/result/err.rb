@@ -3,8 +3,6 @@
 module ReSorcery
   module Result
     class Err
-      include Result
-
       def initialize(err)
         @err = err
       end
@@ -18,11 +16,11 @@ module ReSorcery
       end
 
       def map_error(&block)
-        err(block.call(@err))
+        Err.new(block.call(@err))
       end
 
       def or_else(&block)
-        ArgCheck.arg_check('block', block.call(@err), Result)
+        ArgCheck.arg_check('block', block.call(@err), Ok, Err)
       end
 
       def assign(_name)
@@ -30,7 +28,7 @@ module ReSorcery
       end
 
       def ==(other)
-        other.class == Result::Err && other.instance_eval { @err } == @err
+        other.class == Err && other.instance_eval { @err } == @err
       end
 
       def as_json(*)

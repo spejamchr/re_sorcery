@@ -53,7 +53,7 @@ module ReSorcery
     def check(unknown)
       result = @block.call(unknown)
       case result
-      when Result
+      when Ok, Err
         result
       when TrueClass
         ok(unknown)

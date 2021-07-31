@@ -3,18 +3,16 @@
 module ReSorcery
   module Result
     class Ok
-      include Result
-
       def initialize(value)
         @value = value
       end
 
       def and_then(&block)
-        ArgCheck.arg_check('block', block.call(@value), Result)
+        ArgCheck.arg_check('block', block.call(@value), Ok, Err)
       end
 
       def map(&block)
-        ok(block.call(@value))
+        Ok.new(block.call(@value))
       end
 
       def map_error
@@ -28,12 +26,12 @@ module ReSorcery
       def assign(name, &block)
         raise Error::NonHashAssignError, @value unless @value.is_a?(Hash)
 
-        ArgCheck.arg_check('block', block.call(@value), Result)
+        ArgCheck.arg_check('block', block.call(@value), Ok, Err)
           .map { |k| @value.merge(name => k) }
       end
 
       def ==(other)
-        other.class == Result::Ok && other.instance_eval { @value } == @value
+        other.class == Ok && other.instance_eval { @value } == @value
       end
 
       def as_json(*)

@@ -6,15 +6,16 @@ module ReSorcery
   class Checker
     class BuiltinCheckersTest < Minitest::Test
       include BuiltinCheckers
+      include Helpers
 
       class MyString < String; end
 
       def oks(checker, items)
-        items.each { |i| assert_kind_of Ok, checker.check(i) }
+        items.each { |i| assert_kind_of Result::Ok, checker.check(i) }
       end
 
       def errs(checker, items)
-        items.each { |i| assert_kind_of Err, checker.check(i) }
+        items.each { |i| assert_kind_of Result::Err, checker.check(i) }
       end
 
       def test_string_checker_passes_strings
@@ -35,7 +36,7 @@ module ReSorcery
 
       def test_is_with_object_checker_passes
         ['a', ('b' * 1000), { a: ['b'] }, [1, 2, 4], Set.new, 7**7**7, 4i / 3r].each do |o|
-          assert_kind_of Ok, is(o).check(o)
+          assert_kind_of Result::Ok, is(o).check(o)
         end
       end
 
@@ -50,7 +51,7 @@ module ReSorcery
           1 => [2, 1.1, 1 + 1i, [1], { 1 => 1 }, :sym],
           [1] => [1, [2], { 1 => 1 }, :sym],
         }.each do |k, vs|
-          vs.each { |v| assert_kind_of Err, is(k).check(v) }
+          vs.each { |v| assert_kind_of Result::Err, is(k).check(v) }
         end
       end
 
@@ -94,7 +95,7 @@ module ReSorcery
       def test_array_with_checker
         c = array(is(Numeric))
 
-        assert_kind_of Ok, c.check([1, 2.2, 3r, -2])
+        assert_kind_of Result::Ok, c.check([1, 2.2, 3r, -2])
 
         errs c, [
           ['a', 1, 2.2, 3r, -2],
@@ -107,7 +108,7 @@ module ReSorcery
       def test_array_with_class
         c = array(Numeric)
 
-        assert_kind_of Ok, c.check([1, 2.2, 3r, -2])
+        assert_kind_of Result::Ok, c.check([1, 2.2, 3r, -2])
 
         errs c, [
           ['a', 1, 2.2, 3r, -2],

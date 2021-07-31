@@ -3,7 +3,7 @@
 module ReSorcery
   module Fielded
     module ExpandInternalFields
-      extend Result
+      extend Helpers
 
       # Used internally to check deeply nested `Fielded` structures
       #

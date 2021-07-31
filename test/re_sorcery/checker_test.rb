@@ -3,8 +3,8 @@
 require "test_helper"
 
 module ReSorcery
-  class ResultTest < Minitest::Test
-    include Result
+  class CheckerTest < Minitest::Test
+    include Helpers
 
     STUFF = [
       1,
@@ -20,6 +20,14 @@ module ReSorcery
       ReSorcery::Checker.new { raise "BAD!" },
       -> { raise "Don't run me!" },
     ].freeze
+
+    def test_not_maybe
+      refute_kind_of Maybe, Checker.new
+    end
+
+    def test_not_result
+      refute_kind_of Result, Checker.new
+    end
 
     def test_always_checker
       always = Checker.new { |n| ok(n) }
@@ -58,7 +66,7 @@ module ReSorcery
 
     def test_checker_will_not_successfullly_return_nil
       always = Checker.new { true }
-      assert_kind_of Err, always.check(nil)
+      assert_kind_of Result::Err, always.check(nil)
     end
   end
 end

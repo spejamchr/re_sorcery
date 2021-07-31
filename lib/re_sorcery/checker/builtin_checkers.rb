@@ -4,8 +4,7 @@ module ReSorcery
   class Checker
     # Common checkers implemented here for convenience
     module BuiltinCheckers
-      include Result
-      include Maybe
+      include Helpers
 
       private
 
@@ -70,7 +69,7 @@ module ReSorcery
       def maybe(at_least_one_thing, *other_things)
         checker = is(at_least_one_thing, *other_things)
         Checker.new do |instance|
-          is(Maybe).check(instance).and_then do |maybe|
+          is(Maybe::Just, Maybe::Nothing).check(instance).and_then do |maybe|
             maybe
               .map { |v| checker.check(v).map { |c| just(c) } }
               .get_or_else { ok(nothing) }

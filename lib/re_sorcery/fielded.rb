@@ -4,8 +4,7 @@ require 're_sorcery/fielded/expand_internal_fields'
 
 module ReSorcery
   module Fielded
-    include Result
-    include Maybe
+    include Helpers
 
     module ClassMethods
       include Checker::BuiltinCheckers

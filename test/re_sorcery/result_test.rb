@@ -4,8 +4,8 @@ require "test_helper"
 
 module ReSorcery
   class ResultTest < Minitest::Test
-    include Result
-    extend Result
+    include Helpers
+    extend Helpers
 
     ADD_1 = ->(n) { n + 1 }
     OK_ADD_1 = ->(n) { ok(n + 1) }

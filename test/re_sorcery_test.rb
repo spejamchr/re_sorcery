@@ -3,7 +3,7 @@
 require "test_helper"
 
 class ReSorceryTest < Minitest::Test
-  include ReSorcery::Result
+  include ReSorcery::Helpers
 
   def test_that_it_has_a_version_number
     refute_nil ::ReSorcery::VERSION
@@ -92,6 +92,14 @@ class ReSorceryTest < Minitest::Test
 
   def test_empty_re_sorcery_works_fine
     assert_equal ok(payload: {}, links: []), Empty.new.resource
+  end
+
+  def test_empty_not_maybe
+    refute_kind_of ReSorcery::Maybe, Empty.new
+  end
+
+  def test_empty_not_result
+    refute_kind_of ReSorcery::Result, Empty.new
   end
 
   class Child

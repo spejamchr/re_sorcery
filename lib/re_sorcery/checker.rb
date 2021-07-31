@@ -38,7 +38,7 @@ module ReSorcery
   # will never pass `check`.
   #
   class Checker
-    include Result
+    include Helpers
 
     def initialize(&block)
       @block = block
@@ -53,7 +53,7 @@ module ReSorcery
     def check(unknown)
       result = @block.call(unknown)
       case result
-      when Ok, Err
+      when Result::Ok, Result::Err
         result
       when TrueClass
         ok(unknown)

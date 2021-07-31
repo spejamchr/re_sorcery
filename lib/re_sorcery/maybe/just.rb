@@ -17,7 +17,7 @@ module ReSorcery
       end
 
       def map(&block)
-        just(block.call(@value))
+        Just.new(block.call(@value))
       end
 
       def or_else

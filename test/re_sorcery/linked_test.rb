@@ -4,7 +4,7 @@ require "test_helper"
 
 module ReSorcery
   class LinkedTest < Minitest::Test
-    include Result
+    include Helpers
 
     SELF_LINK = { rel: 'self', href: '/me', method: 'get', type: 'application/json' }.freeze
 
@@ -73,7 +73,7 @@ module ReSorcery
     end
 
     def test_links_for_invalid_rel_link
-      assert_kind_of Err, InvalidRelLink.new.links
+      assert_kind_of Result::Err, InvalidRelLink.new.links
     end
 
     def test_links_multiple_times_stay_the_same

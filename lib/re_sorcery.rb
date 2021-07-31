@@ -5,6 +5,7 @@ require 're_sorcery/error'
 require 're_sorcery/arg_check'
 require 're_sorcery/maybe'
 require 're_sorcery/result'
+require 're_sorcery/helpers'
 require 're_sorcery/checker'
 require 're_sorcery/fielded'
 require 're_sorcery/maybe/just'
@@ -14,6 +15,7 @@ require 're_sorcery/linked'
 module ReSorcery
   include Fielded
   include Linked
+  include Helpers
 
   def self.included(base)
     base.extend Fielded::ClassMethods

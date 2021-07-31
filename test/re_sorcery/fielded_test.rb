@@ -4,7 +4,7 @@ require "test_helper"
 
 module ReSorcery
   class FieldedTest < Minitest::Test
-    include Result
+    include Helpers
 
     def self.test_in_class(&block)
       Class.new do
@@ -25,6 +25,14 @@ module ReSorcery
 
     BrokenString = test_in_class { field :broken, String, -> { 0 } }
 
+    def test_not_maybe
+      refute_kind_of Maybe, StringField.new
+    end
+
+    def test_not_result
+      refute_kind_of Result, StringField.new
+    end
+
     def test_fields_for_something_nestedly_fielded
       assert_equal ok(nf: { sf: { a: "string" } }), TrilyNested.new.fields
     end
@@ -38,7 +46,7 @@ module ReSorcery
     end
 
     def test_fields_for_broken
-      assert_kind_of Err, BrokenString.new.fields
+      assert_kind_of Result::Err, BrokenString.new.fields
     end
 
     def test_nil_cannot_be_returned_in_a_field
@@ -71,7 +79,7 @@ module ReSorcery
     end
 
     def test_invalid_blockless_form_of_field
-      assert_kind_of Err, InvalidBlocklessForm.new.fields
+      assert_kind_of Result::Err, InvalidBlocklessForm.new.fields
     end
 
     UndefinedBlocklessForm = test_in_class { field :name, String }

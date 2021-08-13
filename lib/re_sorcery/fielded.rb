@@ -7,7 +7,7 @@ module ReSorcery
     include Helpers
 
     module ClassMethods
-      include Checker::BuiltinCheckers
+      include Decoder::BuiltinDecoders
 
       private
 
@@ -18,11 +18,11 @@ module ReSorcery
       # `Maybe` type or discriminated unions.
       #
       # @param [Symbol] name
-      # @param [arg of Checker.is] type @see `ReSorcery::Checker.is` for details
+      # @param [arg of Decoder.is] type @see `ReSorcery::Decoder.is` for details
       # @param [Proc] pro: in the context of an instance of the class, return the value of the field
       def field(name, type, pro = -> { send(name) })
-        ArgCheck.arg_check('name', name, Symbol)
-        ArgCheck.arg_check('pro', pro, Proc)
+        ArgCheck['name', name, Symbol]
+        ArgCheck['pro', pro, Proc]
 
         (@fields ||= {})[name] = { type: is(type), pro: pro }
       end
@@ -34,7 +34,7 @@ module ReSorcery
 
     # Returns the *checked* fields of the object, wrapped in a `Result`
     #
-    # If all the `Checker`s pass, this will return an `Ok`. If any of them
+    # If all the `Decoder`s pass, this will return an `Ok`. If any of them
     # fail, it will return an `Err` instead.
     #
     # @return [Result<String, Hash>]

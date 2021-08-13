@@ -6,14 +6,14 @@ module ReSorcery
       include Fielded
 
       field :kind, :just, -> { :just }
-      field :value, Checker.new { true }, -> { @value }
+      field :value, Decoder.new { true }, -> { @value }
 
       def initialize(value)
         @value = value
       end
 
       def and_then(&block)
-        ArgCheck.arg_check('block', block.call(@value), Just, Nothing)
+        ArgCheck['block', block.call(@value), Just, Nothing]
       end
 
       def map(&block)
@@ -31,7 +31,7 @@ module ReSorcery
       def assign(name, &block)
         raise Error::NonHashAssignError, @value unless @value.is_a?(Hash)
 
-        ArgCheck.arg_check('block', block.call(@value), Just, Nothing)
+        ArgCheck['block', block.call(@value), Just, Nothing]
           .map { |k| @value.merge(name => k) }
       end
 

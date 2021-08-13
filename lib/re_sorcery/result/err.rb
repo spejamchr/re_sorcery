@@ -20,7 +20,7 @@ module ReSorcery
       end
 
       def or_else(&block)
-        ArgCheck.arg_check('block', block.call(@err), Ok, Err)
+        ArgCheck['block', block.call(@err), Ok, Err]
       end
 
       def assign(_name)

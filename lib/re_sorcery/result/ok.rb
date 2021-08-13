@@ -8,7 +8,7 @@ module ReSorcery
       end
 
       def and_then(&block)
-        ArgCheck.arg_check('block', block.call(@value), Ok, Err)
+        ArgCheck['block', block.call(@value), Ok, Err]
       end
 
       def map(&block)
@@ -26,7 +26,7 @@ module ReSorcery
       def assign(name, &block)
         raise Error::NonHashAssignError, @value unless @value.is_a?(Hash)
 
-        ArgCheck.arg_check('block', block.call(@value), Ok, Err)
+        ArgCheck['block', block.call(@value), Ok, Err]
           .map { |k| @value.merge(name => k) }
       end
 

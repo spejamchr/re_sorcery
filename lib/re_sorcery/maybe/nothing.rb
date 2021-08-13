@@ -16,7 +16,7 @@ module ReSorcery
       end
 
       def or_else(&block)
-        ArgCheck.arg_check('block', block.call, Just, Nothing)
+        ArgCheck['block', block.call, Just, Nothing]
       end
 
       def get_or_else(&block)

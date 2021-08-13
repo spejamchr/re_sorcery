@@ -3,48 +3,48 @@
 require "test_helper"
 
 module ReSorcery
-  class Checker
-    class BuiltinCheckersTest < Minitest::Test
-      include BuiltinCheckers
+  class Decoder
+    class BuiltinDecodersTest < Minitest::Test
+      include BuiltinDecoders
       include Helpers
 
       class MyString < String; end
 
-      def oks(checker, items)
-        items.each { |i| assert_kind_of Result::Ok, checker.check(i) }
+      def oks(decoder, items)
+        items.each { |i| assert_equal ok(i), decoder.check(i) }
       end
 
-      def errs(checker, items)
-        items.each { |i| assert_kind_of Result::Err, checker.check(i) }
+      def errs(decoder, items)
+        items.each { |i| assert_kind_of Result::Err, decoder.check(i) }
       end
 
-      def test_string_checker_passes_strings
+      def test_string_decoder_passes_strings
         oks is(String), ["hi", "there\n you", "\n\n", MyString.new("hi"), ('b' * 1000)]
       end
 
-      def test_string_checker_fails_non_strings
+      def test_string_decoder_fails_non_strings
         errs is(String), [1, :symbol, ["array"], { a: 'hash' }, (1..2), ('a'..'b'), Set.new, String]
       end
 
-      def test_is_numeric_checkers_passes_numerics
+      def test_is_numeric_decoders_passes_numerics
         oks is(Numeric), [1, 1.1, 1i, 3/4r, 1.1i, 3ri / 4, 3ri / 4.1r, 7**7**7]
       end
 
-      def test_is_numeric_checker_fails_non_numerics
+      def test_is_numeric_decoder_fails_non_numerics
         errs is(Numeric), ['1', :one, [1], { a: 2 }, (1..2), ('a'..'b'), Set.new, String]
       end
 
-      def test_is_with_object_checker_passes
+      def test_is_with_object_decoder_passes
         ['a', ('b' * 1000), { a: ['b'] }, [1, 2, 4], Set.new, 7**7**7, 4i / 3r].each do |o|
           assert_kind_of Result::Ok, is(o).check(o)
         end
       end
 
-      def test_is_with_object_checker_uses_equality_not_identity
+      def test_is_with_object_decoder_uses_equality_not_identity
         oks is(1), [1.0, 1.0 + 0i, 1r]
       end
 
-      def test_is_with_object_checker_fails
+      def test_is_with_object_decoder_fails
         {
           'a' => [:a, ['a'], { a: 'a' }, 1],
           a: ['a', [:a], { a: 'a' }, 1],
@@ -55,7 +55,7 @@ module ReSorcery
         end
       end
 
-      def test_is_with_many_checkers
+      def test_is_with_many_decoders
         c = is(is('a'), is('b'), is('c'), is('d'), is(Numeric))
 
         oks c, ['a', 'b', 'c', 'd', 1, 1.1, 2i, 3/4r]
@@ -92,7 +92,7 @@ module ReSorcery
         assert_raises(ReSorcery::Error::ReSorceryError) { is(nil) }
       end
 
-      def test_array_with_checker
+      def test_array_with_decoder
         c = array(is(Numeric))
 
         assert_kind_of Result::Ok, c.check([1, 2.2, 3r, -2])
@@ -126,7 +126,7 @@ module ReSorcery
         errs c, [[nil], [2], [1, 1, 1, 1, 2, 1, 1, 1]]
       end
 
-      def test_maybe_with_checker
+      def test_maybe_with_decoder
         c = maybe(is(Numeric))
 
         oks c, [just(1), just(2.3), just(-1), just(5i), just(4/5r), nothing]
@@ -140,6 +140,16 @@ module ReSorcery
         oks c, [just(1), just(2.3), just(-1), just(:sym), just('hi'), just('there'), nothing]
 
         errs c, [just('no'), just([:sym]), just({ key: 8 })]
+      end
+
+      def test_field_decoder
+        d = field(:f, String)
+
+        [{ f: 'hi' }, { a: 1, f: '' }, { a: [], b: {}, f: 'Howdy!' }].each do |h|
+          assert_equal ok(h[:f]), d.check(h), "Broke on: #{h.inspect}"
+        end
+
+        errs d, [{ f: :not_string }, { a: :missing_f }, {}]
       end
     end
   end

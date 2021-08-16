@@ -3,7 +3,7 @@
 require 're_sorcery/decoder/builtin_decoders'
 
 module ReSorcery
-  # Check that an object satisfies some property
+  # Test that an object satisfies some property
   #
   # A `Decoder` represents a piece of logic for verifying some property. A
   # simple example would be a `Decoder` that verifies that an object
@@ -15,8 +15,8 @@ module ReSorcery
   #
   # And then used like:
   #
-  #     is_string.check("I'm a string") #=> ok("I'm a string")
-  #     is_string.check(:symbol) #=> err("Expected String, got Symbol")
+  #     is_string.test("I'm a string") #=> ok("I'm a string")
+  #     is_string.test(:symbol) #=> err("Expected String, got Symbol")
   #
   # Because returning the original object wrapped in `ok` is the common result
   # when a `Decoder` passes, a shorthand in the initializer is to return
@@ -35,7 +35,7 @@ module ReSorcery
   # All three of these implementations of `is_string` are equivalent.
   #
   # Note that this library has strong opinions against using `nil`, so `nil`
-  # will never pass `check`.
+  # will never pass `Decoder#test`.
   #
   class Decoder
     include Helpers
@@ -44,13 +44,13 @@ module ReSorcery
       @block = block
     end
 
-    # Use the decoder to check that an `unknown` object satisfies some property
+    # Use the decoder to `test` that an `unknown` object satisfies some property
     #
     # Note that `ok(nil)` will never be returned.
     #
     # @param [unknown] unknown
     # @return [Result]
-    def check(unknown)
+    def test(unknown)
       result = @block.call(unknown)
       case result
       when Result::Ok, Result::Err
@@ -59,17 +59,17 @@ module ReSorcery
         ok(unknown)
       else
         err(result)
-      end.and_then { |r| r.nil? ? err("`nil` was returned on a successful check!") : ok(r) }
+      end.and_then { |r| r.nil? ? err("`nil` was returned on a successful test!") : ok(r) }
     end
 
     # Apply some block within the context of a successful decoder
     def map(&block)
-      Decoder.new { |unknown| check(unknown).map(&block) }
+      Decoder.new { |unknown| test(unknown).map(&block) }
     end
 
     # Apply some block within the context of an unsuccessful decoder
     def map_error(&block)
-      Decoder.new { |unknown| check(unknown).map_error(&block) }
+      Decoder.new { |unknown| test(unknown).map_error(&block) }
     end
 
     # Chain decoders
@@ -80,8 +80,8 @@ module ReSorcery
     # The block must return a `Decoder`.
     def and_then(&block)
       Decoder.new do |unknown|
-        check(unknown).and_then do |v|
-          ArgCheck['block.call(value)', block.call(v), Decoder].check(unknown)
+        test(unknown).and_then do |v|
+          ArgCheck['block.call(value)', block.call(v), Decoder].test(unknown)
         end
       end
     end

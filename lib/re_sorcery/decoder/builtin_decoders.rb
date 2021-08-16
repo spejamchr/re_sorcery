@@ -20,7 +20,7 @@ module ReSorcery
         Decoder.new { message }
       end
 
-      # Check that an object is a thing (or one of a list of things)
+      # Test if an object is a thing (or one of a list of things)
       #
       # Convenience method for creating common types of `Decoder`s.
       #
@@ -33,9 +33,9 @@ module ReSorcery
       # For each argument `thing` in `things`:
       #
       # - If `thing` is a Decoder, return it unchanged.
-      # - If `thing` is a Class or Module, create a Decoder that checks whether
+      # - If `thing` is a Class or Module, create a Decoder that tests whether
       #   an object `is_a?(thing)`.
-      # - Otherwise, create a Decoder that checks if an object equals `thing`
+      # - Otherwise, create a Decoder that tests if an object equals `thing`
       #   (using `==`).
       #
       # Then create a decoder that tests each of these decoders one by one
@@ -47,13 +47,13 @@ module ReSorcery
         decoders = things.map { |t| make_decoder_from(t) }
 
         Decoder.new do |instance|
-          check_multiple(decoders, instance).map_error do |errors|
+          test_multiple(decoders, instance).map_error do |errors|
             errors.count == 1 ? errors[0] : "all decoders in `is` failed: (#{errors.join(' | ')})"
           end
         end
       end
 
-      # Check that an object is an array of objects that pass the decoder `is(thing)`
+      # Test that an object is an array of objects that pass the decoder `is(thing)`
       #
       # @param thing @see `is` for details
       # @param others @see `is` for details
@@ -61,11 +61,11 @@ module ReSorcery
       def array(thing, *others)
         decoder = is(thing, *others)
         Decoder.new do |instance|
-          is(Array).check(instance).and_then do |arr|
+          is(Array).test(instance).and_then do |arr|
             arr.each_with_index.inject(ok([])) do |result_array, (unknown, index)|
               result_array.and_then do |ok_array|
-                decoder.check(unknown)
-                  .map { |checked| ok_array << checked }
+                decoder.test(unknown)
+                  .map { |tested| ok_array << tested }
                   .map_error { |error| "Error at index `#{index}` of Array: #{error}" }
               end
             end
@@ -73,7 +73,7 @@ module ReSorcery
         end
       end
 
-      # Check that an object is a Maybe whose `value` passes some `Decoder`
+      # Test that an object is a Maybe whose `value` passes some `Decoder`
       #
       # @param thing @see `is` for details
       # @param others @see `is` for details
@@ -81,21 +81,21 @@ module ReSorcery
       def maybe(thing, *others)
         decoder = is(thing, *others)
         Decoder.new do |instance|
-          is(Maybe::Just, Maybe::Nothing).check(instance).and_then do |maybe|
+          is(Maybe::Just, Maybe::Nothing).test(instance).and_then do |maybe|
             maybe
-              .map { |v| decoder.check(v).map { |c| just(c) } }
+              .map { |v| decoder.test(v).map { |c| just(c) } }
               .get_or_else { ok(nothing) }
           end
         end
       end
 
-      # Check that an object is a hash and has a field that passes a given decoder
+      # Test that an object is a hash and has a field that passes a given decoder
       def field(key, thing, *others)
         key_decoder = is(thing, *others).map_error { |e| "Error at key `#{key}`: #{e}" }
 
         is(Hash)
           .and_then { Decoder.new { |u| u.key?(key) || "Expected key `#{key}` in: #{u.inspect}" } }
-          .and_then { Decoder.new { |u| key_decoder.check(u.fetch(key)) } }
+          .and_then { Decoder.new { |u| key_decoder.test(u.fetch(key)) } }
       end
 
       def make_decoder_from(thing)
@@ -112,10 +112,10 @@ module ReSorcery
         end
       end
 
-      def check_multiple(decoders, instance)
+      def test_multiple(decoders, instance)
         decoders.inject(err([])) do |error_array, decoder|
           error_array.or_else do |errors|
-            decoder.check(instance).map_error { |error| errors << error }
+            decoder.test(instance).map_error { |error| errors << error }
           end
         end
       end

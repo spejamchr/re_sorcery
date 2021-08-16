@@ -5,7 +5,7 @@ module ReSorcery
     module ExpandInternalFields
       extend Helpers
 
-      # Used internally to check deeply nested `Fielded` structures
+      # Used internally to expand deeply nested `Fielded` structures
       #
       # `Hash` is intentionally *not* expanded. Create a `Fielded` class instead.
       #
@@ -23,10 +23,12 @@ module ReSorcery
           ok(obj)
         when Array
           expand_for_array(obj)
+        when Hash
+          err("`Hash` cannot be safely expanded as a `field`. Use a `Fielded` class instead.")
         when NilClass
           err("`nil` cannot be returned as a `field`")
         else
-          err("Cannot deeply check #{obj.class}")
+          err("Cannot deeply expand fields of class #{obj.class}")
         end
       end
 

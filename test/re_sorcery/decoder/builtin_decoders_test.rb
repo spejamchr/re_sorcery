@@ -11,11 +11,11 @@ module ReSorcery
       class MyString < String; end
 
       def oks(decoder, items)
-        items.each { |i| assert_equal ok(i), decoder.check(i) }
+        items.each { |i| assert_equal ok(i), decoder.test(i) }
       end
 
       def errs(decoder, items)
-        items.each { |i| assert_kind_of Result::Err, decoder.check(i) }
+        items.each { |i| assert_kind_of Result::Err, decoder.test(i) }
       end
 
       def test_string_decoder_passes_strings
@@ -36,7 +36,7 @@ module ReSorcery
 
       def test_is_with_object_decoder_passes
         ['a', ('b' * 1000), { a: ['b'] }, [1, 2, 4], Set.new, 7**7**7, 4i / 3r].each do |o|
-          assert_kind_of Result::Ok, is(o).check(o)
+          assert_kind_of Result::Ok, is(o).test(o)
         end
       end
 
@@ -51,7 +51,7 @@ module ReSorcery
           1 => [2, 1.1, 1 + 1i, [1], { 1 => 1 }, :sym],
           [1] => [1, [2], { 1 => 1 }, :sym],
         }.each do |k, vs|
-          vs.each { |v| assert_kind_of Result::Err, is(k).check(v) }
+          vs.each { |v| assert_kind_of Result::Err, is(k).test(v) }
         end
       end
 
@@ -82,8 +82,8 @@ module ReSorcery
       def test_is_with_multiple_human_bools
         human_bool = is('yes', 'no')
 
-        assert_equal ok('yes'), human_bool.check('yes')
-        assert_equal ok('no'), human_bool.check('no')
+        assert_equal ok('yes'), human_bool.test('yes')
+        assert_equal ok('no'), human_bool.test('no')
 
         errs human_bool, ['other', 'maybe', 'yes ', "no\n"]
       end
@@ -95,7 +95,7 @@ module ReSorcery
       def test_array_with_decoder
         c = array(is(Numeric))
 
-        assert_kind_of Result::Ok, c.check([1, 2.2, 3r, -2])
+        assert_kind_of Result::Ok, c.test([1, 2.2, 3r, -2])
 
         errs c, [
           ['a', 1, 2.2, 3r, -2],
@@ -108,7 +108,7 @@ module ReSorcery
       def test_array_with_class
         c = array(Numeric)
 
-        assert_kind_of Result::Ok, c.check([1, 2.2, 3r, -2])
+        assert_kind_of Result::Ok, c.test([1, 2.2, 3r, -2])
 
         errs c, [
           ['a', 1, 2.2, 3r, -2],
@@ -146,7 +146,7 @@ module ReSorcery
         d = field(:f, String)
 
         [{ f: 'hi' }, { a: 1, f: '' }, { a: [], b: {}, f: 'Howdy!' }].each do |h|
-          assert_equal ok(h[:f]), d.check(h), "Broke on: #{h.inspect}"
+          assert_equal ok(h[:f]), d.test(h), "Broke on: #{h.inspect}"
         end
 
         errs d, [{ f: :not_string }, { a: :missing_f }, {}]

@@ -32,53 +32,53 @@ module ReSorcery
     def test_always_decoder
       always = Decoder.new { |n| ok(n) }
       STUFF.each do |thing|
-        assert_equal ok(thing), always.check(thing)
+        assert_equal ok(thing), always.test(thing)
       end
     end
 
     def test_never_decoder
       never = Decoder.new { err("no") }
       STUFF.each do |thing|
-        assert_equal err("no"), never.check(thing)
+        assert_equal err("no"), never.test(thing)
       end
     end
 
     def test_decoder_auto_ok_shorthand
       always = Decoder.new { true }
       STUFF.each do |thing|
-        assert_equal ok(thing), always.check(thing)
+        assert_equal ok(thing), always.test(thing)
       end
     end
 
     def test_decoder_auto_err_shorthand
       never = Decoder.new { "no" }
       STUFF.each do |thing|
-        assert_equal err("no"), never.check(thing)
+        assert_equal err("no"), never.test(thing)
       end
     end
 
     def test_decoder_auto_shorthand_realistic
       is_string = Decoder.new { |n| n.is_a?(String) || "Expected String, got #{n.class}" }
 
-      assert_equal ok("string"), is_string.check("string")
-      assert_equal err("Expected String, got Symbol"), is_string.check(:symbol)
+      assert_equal ok("string"), is_string.test("string")
+      assert_equal err("Expected String, got Symbol"), is_string.test(:symbol)
     end
 
     def test_decoder_will_not_successfullly_return_nil
       always = Decoder.new { true }
-      assert_kind_of Result::Err, always.check(nil)
+      assert_kind_of Result::Err, always.test(nil)
     end
 
     def test_map_decoder
       plus_1_integer = Decoder.new { |n| n.is_a?(Integer) }.map { |n| n + 1 }
 
-      assert_equal ok(2), plus_1_integer.check(1)
+      assert_equal ok(2), plus_1_integer.test(1)
     end
 
     def test_map_error_decoder
       fail_with_hi = Decoder.new { false }.map_error { 'hi' }
 
-      assert_equal err('hi'), fail_with_hi.check(2)
+      assert_equal err('hi'), fail_with_hi.test(2)
     end
 
     def test_and_then_decoder
@@ -87,19 +87,19 @@ module ReSorcery
       is_string_int = Decoder.new { |u| u.is_a?(String) || u.is_a?(Integer) }
       and_thened = is_string_int.and_then { |v| v.is_a?(String) ? is_hi_there : is_one_or_two }
 
-      assert_equal err(false), and_thened.check(:symbol)
+      assert_equal err(false), and_thened.test(:symbol)
 
-      assert_equal ok('hi'), and_thened.check('hi')
-      assert_equal ok(1), and_thened.check(1)
+      assert_equal ok('hi'), and_thened.test('hi')
+      assert_equal ok(1), and_thened.test(1)
 
-      assert_equal err(false), and_thened.check(3)
-      assert_equal err(false), and_thened.check('hello')
+      assert_equal err(false), and_thened.test(3)
+      assert_equal err(false), and_thened.test('hello')
     end
 
     def test_and_then_raises_error_on_bad_block
       invalid_decoder = Decoder.new { true }.and_then { 2 }
 
-      assert_raises(ReSorcery::Error::ArgumentError) { invalid_decoder.check('anything') }
+      assert_raises(ReSorcery::Error::ArgumentError) { invalid_decoder.test('anything') }
     end
 
     def test_assign_decoder
@@ -112,21 +112,21 @@ module ReSorcery
 
       user = { name: "Gilbert", age: 14 }
 
-      assert_equal ok(user), user_decoder.check(user)
+      assert_equal ok(user), user_decoder.test(user)
     end
 
     def test_assign_raises_error_on_non_hash_decoder
       assert_raises(ReSorcery::Error::ArgumentError) do
         Decoder.new { ok(:not_hash) }
           .assign(:f, Decoder.new { ok('hi') })
-          .check('anything')
+          .test('anything')
       end
     end
 
     def test_assign_block_does_not_run_on_failing_decoder
       Decoder.new { err('fail') }
         .assign(:f, -> { raise 'should not run' })
-        .check('anything')
+        .test('anything')
     end
   end
 end

@@ -5,13 +5,11 @@ require "test_helper"
 module ReSorcery
   class ConfigurationTest
     def setup
-      teardown
-      ReSorcery::Linked.instance_exec { @link_class = nil }
+      clear_re_sorcery_config
     end
 
     def teardown
-      ReSorcery::Linked.instance_exec { @link_class = nil }
-      ReSorcery.instance_exec { @configuration = @configured = nil }
+      clear_re_sorcery_config
     end
 
     def test_cannot_configure_after_including_re_sorcery

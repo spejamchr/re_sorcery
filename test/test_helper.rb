@@ -25,4 +25,16 @@ def assert_at_json(expected, json, path)
   assert_equal expected, json.dig(*path)
 end
 
+# Clear configuration so that tests can test configuration
+#
+# Normally `ReSorcery` configuration can only run once. This mucks around in
+# ReSorcery internals to get around that, so tests can test configuration.
+#
+# This will likely break if the implementation changes. That will be annoying,
+# but at least the bad logic is all right here, and not spread out.
+def clear_re_sorcery_config
+  ReSorcery::Linked.instance_exec { @link_class = nil }
+  ReSorcery.instance_exec { @configuration = @configured = nil }
+end
+
 require "minitest/autorun"

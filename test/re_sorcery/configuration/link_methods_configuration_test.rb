@@ -8,14 +8,12 @@ module ReSorcery
       METHOD = 'non_default'
 
       def setup
-        teardown
-        ReSorcery::Linked.instance_exec { @link_class = nil }
+        clear_re_sorcery_config
         ReSorcery.configure { link_methods [METHOD] }
       end
 
       def teardown
-        ReSorcery::Linked.instance_exec { @link_class = nil }
-        ReSorcery.instance_exec { @configuration = @configured = nil }
+        clear_re_sorcery_config
       end
 
       def klass_with_method(method)

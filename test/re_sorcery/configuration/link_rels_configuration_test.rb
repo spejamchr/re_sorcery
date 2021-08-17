@@ -8,14 +8,12 @@ module ReSorcery
       REL = 'non_default'
 
       def setup
-        teardown
-        ReSorcery::Linked.instance_exec { @link_class = nil }
+        clear_re_sorcery_config
         ReSorcery.configure { link_rels [REL] }
       end
 
       def teardown
-        ReSorcery::Linked.instance_exec { @link_class = nil }
-        ReSorcery.instance_exec { @configuration = @configured = nil }
+        clear_re_sorcery_config
       end
 
       def klass_with_rel(rel)

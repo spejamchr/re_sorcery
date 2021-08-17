@@ -4,12 +4,8 @@ module ReSorcery
   # Configure `ReSorcery`: All configuration kept in one place
   #
   # `ReSorcery` has some values that can be configured by users. To keep such
-  # configuration clear, `#configure` can only be called once.
-  #
-  # Also, `#configure` must be called before using `ReSorcery`
-  #
-  # @see `Configuration::CONFIGURABLES` for a list of what can be configured and
-  # what value each configurable takes.
+  # configuration clear, and to prevent confusing behavior, `#configure` can
+  # only be called once, and must be called before `include`ing `ReSorcery`.
   #
   # Example:
   #
@@ -18,16 +14,11 @@ module ReSorcery
   #       link_methods ['get', 'post', 'put']
   #     end
   #
+  # @see `Configuration::CONFIGURABLES` for a list of what can be configured and
+  # what value each configurable takes.
+  #
   module Configuration
     extend Decoder::BuiltinDecoders
-
-    # def self.extended(base)
-    #   included = base.method(:included)
-    #   base.define_instance_method(:included) do |included_base|
-    #     @configured = true
-    #     included.call(included_base)
-    #   end
-    # end
 
     CONFIGURABLES = {
       link_rels: array(String),

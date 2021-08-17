@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 're_sorcery/linked/link'
+require 're_sorcery/linked/link_class_factory'
 
 module ReSorcery
   module Linked
@@ -42,6 +42,10 @@ module ReSorcery
       base.extend(ClassMethods)
     end
 
+    def self.link_class
+      @link_class ||= LinkClassFactory.make_link_class
+    end
+
     def links
       instance_exec(&self.class.instance_exec { @links_proc ||= -> {} })
       created_links = (@_created_links ||= [])
@@ -62,7 +66,8 @@ module ReSorcery
     #
     # @see `ReSorcery::Linked::Link#initialize` for param types
     def link(rel, href, method = 'get', type = 'application/json')
-      (@_created_links ||= []) << Link.new(rel: rel, href: href, method: method, type: type).fields
+      klass = Linked.link_class
+      (@_created_links ||= []) << klass.new(rel: rel, href: href, method: method, type: type).fields
     end
   end
 end

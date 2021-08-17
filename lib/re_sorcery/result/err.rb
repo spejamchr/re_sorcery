@@ -27,6 +27,10 @@ module ReSorcery
         self
       end
 
+      def cata(ok:, err:)
+        err.call(@err)
+      end
+
       def ==(other)
         other.class == Err && other.instance_eval { @err } == @err
       end

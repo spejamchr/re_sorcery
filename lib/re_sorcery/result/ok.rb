@@ -30,6 +30,10 @@ module ReSorcery
           .map { |k| @value.merge(name => k) }
       end
 
+      def cata(ok:, err:)
+        ok.call(@value)
+      end
+
       def ==(other)
         other.class == Ok && other.instance_eval { @value } == @value
       end

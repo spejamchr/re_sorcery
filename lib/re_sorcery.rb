@@ -11,19 +11,18 @@ require 're_sorcery/fielded'
 require 're_sorcery/maybe/just'
 require 're_sorcery/maybe/nothing'
 require 're_sorcery/linked'
+require 're_sorcery/configuration'
 
 module ReSorcery
   include Fielded
   include Linked
   include Helpers
+  extend Configuration
 
   def self.included(base)
     base.extend Fielded::ClassMethods
     base.extend Linked::ClassMethods
-  end
-
-  def self.prepended(base)
-    included(base)
+    @configured = "included at #{caller_locations.first}"
   end
 
   def resource

@@ -47,7 +47,7 @@ class ReSorceryTest < Minitest::Test
   end
 
   class DynamicLink
-    prepend ReSorcery
+    include ReSorcery
     def initialize(href)
       @href = href
     end
@@ -71,7 +71,7 @@ class ReSorceryTest < Minitest::Test
     assert_equal correct_dynamic_payload_as_json(value), DynamicPayload.new(value).as_json
   end
 
-  def test_invalid_dynamic_payload_included
+  def test_invalid_dynamic_payload
     value = :symbols_are_not_strings
     assert_equal :err, DynamicPayload.new(value).as_json[:kind]
   end
@@ -81,7 +81,7 @@ class ReSorceryTest < Minitest::Test
     assert_equal correct_dynamic_link_as_json(value), DynamicLink.new(value).as_json
   end
 
-  def test_invalid_dynamic_link_prepended
+  def test_invalid_dynamic_link
     value = :symbols_are_not_strings
     assert_equal :err, DynamicLink.new(value).as_json[:kind]
   end

@@ -86,6 +86,11 @@ module ReSorcery
       end
     end
 
+    # Chain decoders like `and_then`, but always with a specific decoder
+    def and(&block)
+      and_then { Decoder.new(&block) }
+    end
+
     # Chain decoders like and_then, but use the chain to build an object
     def assign(key, other)
       ArgCheck['key', key, Symbol]

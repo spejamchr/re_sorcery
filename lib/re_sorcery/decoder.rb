@@ -78,10 +78,28 @@ module ReSorcery
     # first decoder.
     #
     # The block must return a `Decoder`.
-    def and_then(&block)
+    def and_then(decoder = nil, &block)
+      ArgCheck['decoder', decoder, Decoder] unless decoder.nil?
+
       Decoder.new do |unknown|
-        test(unknown).and_then do |v|
-          ArgCheck['block.call(value)', block.call(v), Decoder].test(unknown)
+        test(unknown).and_then do |value|
+          # Don't try to re-assign `decoder` here, because it's captured from outside the Decoder
+          (decoder || ArgCheck['block.call(value)', block.call(value), Decoder]).test(unknown)
+        end
+      end
+    end
+
+    # If the `Decoder` failed, try another `Decoder`
+    #
+    # The block must return a `Decoder`.
+    def or_else(decoder = nil, &block)
+      ArgCheck['decoder', decoder, Decoder] unless decoder.nil?
+
+      Decoder.new do |unknown|
+        test(unknown).or_else do |value|
+          decoder ||= ArgCheck['block.call(value)', block.call(value), Decoder]
+
+          decoder.test(unknown)
         end
       end
     end

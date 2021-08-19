@@ -82,24 +82,39 @@ module ReSorcery
     end
 
     def test_and_then_decoder
-      is_hi_there = Decoder.new { |u| %w[hi there].include?(u) }
-      is_one_or_two = Decoder.new { |u| [1, 2].include?(u) }
-      is_string_int = Decoder.new { |u| u.is_a?(String) || u.is_a?(Integer) }
+      is_hi_there = Decoder.new { |u| %w[hi there].include?(u) || :a }
+      is_one_or_two = Decoder.new { |u| [1, 2].include?(u) || :b }
+      is_string_int = Decoder.new { |u| u.is_a?(String) || u.is_a?(Integer) || :c }
       and_thened = is_string_int.and_then { |v| v.is_a?(String) ? is_hi_there : is_one_or_two }
 
-      assert_equal err(false), and_thened.test(:symbol)
+      assert_equal err(:a), and_thened.test('hello')
+      assert_equal err(:b), and_thened.test(3)
+      assert_equal err(:c), and_thened.test(:symbol)
 
       assert_equal ok('hi'), and_thened.test('hi')
       assert_equal ok(1), and_thened.test(1)
+    end
 
-      assert_equal err(false), and_thened.test(3)
-      assert_equal err(false), and_thened.test('hello')
+    def test_and_then_decoder_without_block
+      integer = Decoder.new { |u| u.is_a?(Integer) || :a }
+      positive = Decoder.new { |n| n.positive? || :b }
+
+      assert_equal ok(1), integer.and_then(positive).test(1)
+      assert_equal err(:a), integer.and_then(positive).test(1.1)
+      assert_equal err(:b), integer.and_then(positive).test(0)
     end
 
     def test_and_then_raises_error_on_bad_block
       invalid_decoder = Decoder.new { true }.and_then { 2 }
 
       assert_raises(ReSorcery::Error::ArgumentError) { invalid_decoder.test('anything') }
+    end
+
+    def test_or_else_decoder
+      fails = Decoder.new { false }
+      passes = Decoder.new { true }
+      assert_equal ok(1), fails.or_else(passes).test(1)
+      assert_equal ok(1), fails.or_else { passes }.test(1)
     end
 
     def test_and_decoder

@@ -23,6 +23,8 @@ module ReSorcery
           ok(obj)
         when Array
           expand_for_array(obj)
+        when URI
+          ok(obj.to_s)
         when Hash
           err("`Hash` cannot be safely expanded as a `field`. Use a `Fielded` class instead.")
         when NilClass

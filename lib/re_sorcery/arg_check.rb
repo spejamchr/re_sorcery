@@ -6,7 +6,7 @@ module ReSorcery
       return value if types.any? { |t| value.is_a?(t) }
 
       fn = caller_locations.first.label
-      s = "`#{fn}` expected `#{name}` to be #{types.join(' or ')}; but got #{value.class}"
+      s = "`#{fn}` expected `#{name}` to be #{types.join(' or ')}; but got #{value.class}: #{value.inspect}"
       raise ReSorcery::Error::ArgumentError, s
     end
   end

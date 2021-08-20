@@ -85,13 +85,13 @@ User.new(name: :Invalid, id: 1).as_json #=> {
 #   :kind=>:err,
 #   :value=>"Error at field `name` of `User`: Expected a(n) String, but got a(n) Symbol"
 # }
-User.new(name: "Spencer", id: 1).as_json #=> {
+User.new(name: "Spencer", id: 1, admin: true).as_json #=> {
 #   :kind=>:ok,
 #   :value=>{
 #     :payload=>{
 #       :name=>"Spencer",
 #       :id=>1,
-#       :spencer?=>true
+#       :admin?=>true
 #     },
 #     :links=>[
 #       {:rel=>"self", :href=>"/users/1", :method=>"get", :type=>"application/json"}

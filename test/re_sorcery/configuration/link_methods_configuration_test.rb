@@ -26,13 +26,12 @@ module ReSorcery
 
       def test_newly_valid_link_method
         klass = klass_with_method(METHOD)
-        assert_at_json METHOD, klass.new.as_json, [:value, :links, 0, :method]
+        assert_at_json METHOD, klass.new.as_json, [:links, 0, :method]
       end
 
       def test_now_invalid_link_method
         klass = klass_with_method('get')
-        json = klass.new.as_json
-        assert_equal :err, json[:kind], json
+        assert_raises(ReSorcery::Error::InvalidResourceError) { klass.new.as_json }
       end
 
       def test_configure_invalid_methods

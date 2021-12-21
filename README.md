@@ -81,24 +81,24 @@ class User
   end
 end
 
-User.new(name: :Invalid, id: 1).as_json #=> {
-#   :kind=>:err,
-#   :value=>"Error at field `name` of `User`: Expected a(n) String, but got a(n) Symbol"
-# }
 User.new(name: "Spencer", id: 1, admin: true).as_json #=> {
-#   :kind=>:ok,
-#   :value=>{
-#     :payload=>{
-#       :name=>"Spencer",
-#       :id=>1,
-#       :admin?=>true
-#     },
-#     :links=>[
-#       {:rel=>"self", :href=>"/users/1", :method=>"get", :type=>"application/json"}
-#     ]
-#   }
+#   :payload=>{:name=>"Spencer", :id=>1, :admin?=>true},
+#   :links=>[
+#     {:rel=>"self", :href=>"/users/1", :method=>"get", :type=>"application/json"}
+#   ]
 # }
+
+# An invalid `name` raises an error when calling `as_json`
+User.new(name: :Invalid, id: 1).as_json
+# ReSorcery::Error::InvalidResourceError: Error at field `name` of `User`: Expected a(n) String, but
+# got a(n) Symbol
 ```
+
+The implementation of `ReSorcery#as_json` raises an exception on invalid data, instead of serving
+the error message to the user as JSON.
+
+If you want to serve the error message to the user as JSON, use `ReSorcery#resource.as_json`, which
+will return a JSON representation of a `Result` object.
 
 ## Development
 

@@ -20,14 +20,11 @@ class ReSorceryTest < Minitest::Test
   end
 
   CORRECT_STATIC_RESOURCE_AS_JSON = {
-    kind: :ok,
-    value: {
-      payload: { string: { kind: :just, value: { kind: :just, value: "string" } }, number: 42 },
-      links: [
-        { rel: 'self', href: '/here', method: 'get', type: 'application/json' },
-        { rel: 'create', href: '/here', method: 'post', type: 'application/json' },
-      ],
-    },
+    payload: { string: { kind: :just, value: { kind: :just, value: "string" } }, number: 42 },
+    links: [
+      { rel: 'self', href: '/here', method: 'get', type: 'application/json' },
+      { rel: 'create', href: '/here', method: 'post', type: 'application/json' },
+    ],
   }.freeze
 
   def test_simple_re_sorcery
@@ -43,7 +40,7 @@ class ReSorceryTest < Minitest::Test
   end
 
   def correct_dynamic_payload_as_json(value)
-    { kind: :ok, value: { payload: { value: value }, links: [] } }
+    { payload: { value: value }, links: [] }
   end
 
   class DynamicLink
@@ -58,11 +55,8 @@ class ReSorceryTest < Minitest::Test
 
   def correct_dynamic_link_as_json(href)
     {
-      kind: :ok,
-      value: {
-        payload: {},
-        links: [{ rel: 'self', href: href, method: 'get', type: 'application/json' }],
-      },
+      payload: {},
+      links: [{ rel: 'self', href: href, method: 'get', type: 'application/json' }],
     }
   end
 
@@ -73,7 +67,7 @@ class ReSorceryTest < Minitest::Test
 
   def test_invalid_dynamic_payload
     value = :symbols_are_not_strings
-    assert_equal :err, DynamicPayload.new(value).as_json[:kind]
+    assert_raises(ReSorcery::Error::InvalidResourceError) { DynamicPayload.new(value).as_json }
   end
 
   def test_valid_dynamic_link
@@ -83,7 +77,7 @@ class ReSorceryTest < Minitest::Test
 
   def test_invalid_dynamic_link
     value = :symbols_are_not_strings
-    assert_equal :err, DynamicLink.new(value).as_json[:kind]
+    assert_raises(ReSorcery::Error::InvalidResourceError) { DynamicLink.new(value).as_json }
   end
 
   class Empty
@@ -144,10 +138,10 @@ class ReSorceryTest < Minitest::Test
     thing2 = Child.new(2, 'thing2')
     parent = Parent.new(1, 'The Cat in the Hat', [thing1, thing2]).as_json
 
-    child = parent.dig(:value, :payload, :parent_children, :payload, :children, 0) || {}
+    child = parent.dig(:payload, :parent_children, :payload, :children, 0) || {}
 
-    assert_equal 'The Cat in the Hat', parent.dig(:value, :payload, :name)
-    assert_equal '/parents/1', parent.dig(:value, :links, 0, :href)
+    assert_equal 'The Cat in the Hat', parent.dig(:payload, :name)
+    assert_equal '/parents/1', parent.dig(:links, 0, :href)
     assert_equal 'thing1', child.dig(:payload, :name)
     assert_equal 'self', child.dig(:links, 0, :rel)
     assert_equal '/children/1', child.dig(:links, 0, :href)

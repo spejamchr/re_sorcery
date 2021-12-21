@@ -6,8 +6,11 @@ module ReSorcery
 
     class ArgumentError < ReSorceryError; end
 
+    class InvalidResourceError < ReSorceryError; end
+
     class NonHashAssignError < ReSorceryError
       def initialize(value)
+        super(value)
         @value = value
       end
 

@@ -26,13 +26,12 @@ module ReSorcery
 
       def test_newly_valid_link_rel
         klass = klass_with_rel(REL)
-        assert_at_json REL, klass.new.as_json, [:value, :links, 0, :rel]
+        assert_at_json REL, klass.new.as_json, [:links, 0, :rel]
       end
 
       def test_now_invalid_link_rel
         klass = klass_with_rel('self')
-        json = klass.new.as_json
-        assert_equal :err, json[:kind], json
+        assert_raises(ReSorcery::Error::InvalidResourceError) { klass.new.as_json }
       end
 
       def test_configure_invalid_rels

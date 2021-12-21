@@ -32,6 +32,9 @@ module ReSorcery
   end
 
   def as_json(*)
-    resource.as_json
+    resource.cata(
+      ok: ->(r) { r },
+      err: ->(e) { raise Error::InvalidResourceError, e },
+    )
   end
 end

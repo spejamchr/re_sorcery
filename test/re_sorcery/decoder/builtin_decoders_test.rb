@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "set"
 
 module ReSorcery
   class Decoder
@@ -124,6 +125,38 @@ module ReSorcery
         oks c, [[], [1], [1, 1, 1, 1, 1, 1]]
 
         errs c, [[nil], [2], [1, 1, 1, 1, 2, 1, 1, 1]]
+      end
+
+      def test_array_with_transforming_decoder
+        c = array(is(String).map(&:to_sym))
+
+        a = %w[hi there]
+
+        assert_equal ok(a.map(&:to_sym)), c.test(a)
+      end
+
+      def test_non_empty_array_with_transforming_decoder
+        c = non_empty_array(is(String).map(&:to_sym))
+
+        a = %w[hi there]
+
+        assert_equal ok(a.map(&:to_sym)), c.test(a)
+      end
+
+      def test_non_empty_array_followed_by_transforming_decoder
+        c = non_empty_array(String).map { |arr| arr.map(&:to_sym) }
+
+        a = %w[hi there]
+
+        assert_equal ok(a.map(&:to_sym)), c.test(a)
+      end
+
+      def test_non_empty_array_fails_when_empty
+        c = non_empty_array(String)
+
+        oks c, [["hi"], [""], %w[a b c]]
+
+        errs c, [[]]
       end
 
       def test_maybe_with_decoder

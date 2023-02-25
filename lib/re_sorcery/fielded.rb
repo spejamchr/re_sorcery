@@ -40,10 +40,9 @@ module ReSorcery
     # @return [Result<String, Hash>]
     def fields
       self.class.instance_exec { @fields ||= [] }.inject(ok({})) do |result_hash, (name, field_hash)|
-        result_hash.and_then do |ok_hash|
+        result_hash.assign(name) do
           field_hash[:type].test(instance_exec(&field_hash[:pro]))
             .and_then { |tested| ExpandInternalFields.expand(tested) }
-            .map { |fielded| ok_hash.merge(name => fielded) }
             .map_error { |error| "Error at field `#{name}` of `#{self.class}`: #{error}" }
         end
       end

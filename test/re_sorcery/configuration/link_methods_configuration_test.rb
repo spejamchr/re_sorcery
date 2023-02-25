@@ -34,11 +34,23 @@ module ReSorcery
         assert_raises(ReSorcery::Error::InvalidResourceError) { klass.new.as_json }
       end
 
+      def test_configure_with_symbols_works
+        clear_re_sorcery_config
+        syms = %i[get post]
+        ReSorcery.configure { link_methods syms }
+        assert_equal syms.map(&:to_s), ReSorcery.configuration[:link_methods]
+        klass = klass_with_method(:get)
+        assert_at_json "get", klass.new.as_json, [:links, 0, :method]
+      end
+
+      def test_configure_empty_array
+        clear_re_sorcery_config
+        assert_raises(Error::ArgumentError) { ReSorcery.configure { link_methods [] } }
+      end
+
       def test_configure_invalid_methods
-        teardown
+        clear_re_sorcery_config
         assert_raises(Error::ArgumentError) { ReSorcery.configure { link_methods 'not an array' } }
-        teardown
-        assert_raises(Error::ArgumentError) { ReSorcery.configure { link_methods %i[not strings] } }
       end
     end
   end

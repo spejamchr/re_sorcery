@@ -21,8 +21,8 @@ module ReSorcery
     extend Decoder::BuiltinDecoders
 
     CONFIGURABLES = {
-      link_rels: array(String),
-      link_methods: array(String),
+      link_rels: non_empty_array(is(String, Symbol).map(&:to_s)).map(&:uniq),
+      link_methods: non_empty_array(is(String, Symbol).map(&:to_s)).map(&:uniq),
     }.freeze
 
     def configuration

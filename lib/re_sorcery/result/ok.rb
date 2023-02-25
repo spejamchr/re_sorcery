@@ -3,6 +3,14 @@
 module ReSorcery
   module Result
     class Ok
+      class << self
+        def new(value)
+          return Result::Err.new("`nil` was provided as a succeful result value!") if value.nil?
+
+          super
+        end
+      end
+
       def initialize(value)
         @value = value
       end

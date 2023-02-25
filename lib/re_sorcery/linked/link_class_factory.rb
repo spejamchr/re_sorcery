@@ -1,60 +1,89 @@
 # frozen_string_literal: true
 
+require "uri"
+
 module ReSorcery
   module Linked
     class LinkClassFactory
-      extend Decoder::BuiltinDecoders
+      class << self
+        include Decoder::BuiltinDecoders
 
-      def self.valid_rels
-        ReSorcery.configuration.fetch(
-          :link_rels,
+        def make_link_class
+          fields = build_fields
+
+          Class.new do
+            include Fielded
+
+            def initialize(args)
+              @args = args
+            end
+
+            fields.each { |(name, decoder, value)| field name, decoder, value }
+          end
+        end
+
+        private
+
+        def default_rels
           %w[
             self
             create
             update
             destroy
-          ],
-        )
-      end
+          ]
+        end
 
-      def self.valid_methods
-        ReSorcery.configuration.fetch(
-          :link_methods,
+        def valid_rels
+          ReSorcery.configuration.fetch(:link_rels, default_rels)
+        end
+
+        def default_methods
           %w[
             get
             post
             patch
             put
             delete
-          ],
-        )
-      end
-
-      URI_ABLE = is(String, URI).and do |s|
-        next true if s.is_a?(URI)
-
-        begin
-          ok(URI.parse(s))
-        rescue URI::InvalidURIError
-          err("Not a valid URI: #{s}")
+          ]
         end
-      end
 
-      def self.make_link_class
-        default_method = valid_methods.first
-        this = self
+        def valid_methods
+          ReSorcery.configuration.fetch(:link_methods, default_methods)
+        end
 
-        Class.new do
-          include Fielded
-
-          def initialize(args)
-            @args = args
+        def uri_able
+          is(URI).or_else do
+            is(String).and_then do
+              Decoder.new do |u|
+                ok(URI.parse(u))
+              rescue URI::InvalidURIError
+                err("Not a valid URI: #{u}")
+              end
+            end
           end
+        end
 
-          field :rel, is(*this.valid_rels), -> { @args[:rel] }
-          field :href, URI_ABLE, -> { @args[:href] }
-          field :method, is(*this.valid_methods), -> { @args.fetch(:method, default_method) }
-          field :type, String, -> { @args.fetch(:type, 'application/json') }
+        def str_or_sym
+          is(String, Symbol).map(&:to_s)
+        end
+
+        def rel_decoder
+          str_or_sym.and_then { |v| Decoder.new { is(*valid_rels).test(v) } }
+        end
+
+        def method_decoder
+          str_or_sym.and_then { |v| Decoder.new { is(*valid_methods).test(v) } }
+        end
+
+        def build_fields
+          default_method = valid_methods.first
+
+          [
+            [:rel, rel_decoder, -> { @args[:rel] }],
+            [:href, uri_able, -> { @args[:href] }],
+            [:method, method_decoder, -> { @args.fetch(:method, default_method) }],
+            [:type, String, -> { @args.fetch(:type, 'application/json') }],
+          ]
         end
       end
     end

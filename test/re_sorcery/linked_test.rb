@@ -38,6 +38,13 @@ module ReSorcery
       end
     end
 
+    class SymbolSelfLink
+      include Linked
+      links do
+        link :self, '/me', :get
+      end
+    end
+
     class ConditionalLink
       include Linked
       attr_accessor :use_link
@@ -62,6 +69,10 @@ module ReSorcery
 
     def test_links_for_easy_self_link
       assert_equal ok([SELF_LINK]), EasySelfLink.new.links
+    end
+
+    def test_links_for_symbol_self_link
+      assert_equal ok([SELF_LINK]), SymbolSelfLink.new.links
     end
 
     def test_links_for_conditional_link_true

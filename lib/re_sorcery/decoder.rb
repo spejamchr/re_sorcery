@@ -51,15 +51,15 @@ module ReSorcery
     # @param [unknown] unknown
     # @return [Result]
     def test(unknown)
-      result = @block.call(unknown)
-      case result
+      block_result = @block.call(unknown)
+      case block_result
       when Result::Ok, Result::Err
-        result
+        block_result
       when TrueClass
         ok(unknown)
       else
-        err(result)
-      end.and_then { |r| r.nil? ? err("`nil` was returned on a successful test!") : ok(r) }
+        err(block_result)
+      end
     end
 
     # Apply some block within the context of a successful decoder
@@ -76,6 +76,14 @@ module ReSorcery
     #
     # The second decoder can be chosen based on the (successful) result of the
     # first decoder.
+    #
+    # Note: the second decoder decodes the "original" unknown value, not the
+    # potentially-changed result of the first decoder.
+    #
+    #     Decoder.new { |u| u.is_a?(Symbol) || "Not symbol" }
+    #       .map(&:to_s)
+    #       .and_then { |v| Decoder.new { |u| true } } # v is a String & u is a Symbol
+    #       .test(:a_symbol)
     #
     # The block must return a `Decoder`.
     def and_then(decoder = nil, &block)
@@ -97,16 +105,9 @@ module ReSorcery
 
       Decoder.new do |unknown|
         test(unknown).or_else do |value|
-          decoder ||= ArgCheck['block.call(value)', block.call(value), Decoder]
-
-          decoder.test(unknown)
+          (decoder || ArgCheck['block.call(value)', block.call(value), Decoder]).test(unknown)
         end
       end
-    end
-
-    # Chain decoders like `and_then`, but always with a specific decoder
-    def and(&block)
-      and_then { Decoder.new(&block) }
     end
 
     # Chain decoders like and_then, but use the chain to build an object

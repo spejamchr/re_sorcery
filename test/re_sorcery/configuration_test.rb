@@ -21,7 +21,7 @@ module ReSorcery
     end
 
     def test_cannot_configure_twice
-      ReSorcery.configure {}
+      ReSorcery.configure
 
       assert_raises(Error::InvalidConfigurationError) do
         ReSorcery.configure { raise "This shouldn't run" }

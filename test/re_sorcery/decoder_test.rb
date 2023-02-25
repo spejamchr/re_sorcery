@@ -117,14 +117,6 @@ module ReSorcery
       assert_equal ok(1), fails.or_else { passes }.test(1)
     end
 
-    def test_and_decoder
-      positive_integer = Decoder.new { |u| u.is_a?(Integer) || :a }.and { |n| n.positive? || :b }
-
-      assert_equal ok(1), positive_integer.test(1)
-      assert_equal err(:a), positive_integer.test(1.1)
-      assert_equal err(:b), positive_integer.test(0)
-    end
-
     def test_assign_decoder
       has_name = Decoder.new { |u| u[:name].is_a?(String) && ok(u[:name]) || "name err: #{u.inspect}" }
       has_age = Decoder.new { |u| u[:age].is_a?(Integer) && ok(u[:age]) || "age err: #{u.inspect}" }

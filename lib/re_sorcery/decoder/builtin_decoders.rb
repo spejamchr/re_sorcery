@@ -73,6 +73,15 @@ module ReSorcery
         end
       end
 
+      # Like #array, but test the array contains at least one item
+      def non_empty_array(thing, *others)
+        array(thing, *others).and_then do |a|
+          Decoder.new do
+            a.empty? ? "Expected a non-empty array, but received an empty array" : ok(a)
+          end
+        end
+      end
+
       # Test that an object is a Maybe whose `value` passes some `Decoder`
       #
       # @param thing @see `is` for details

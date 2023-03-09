@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'set'
+
 module ReSorcery
   class Decoder
     # Common decoders implemented here for convenience
@@ -9,15 +11,58 @@ module ReSorcery
       private
 
       # A Decoder that always succeeds with a given value
+      #
+      # Useful for starting decoder chains that build up successful values.
       def succeed(value)
         Decoder.new { ok(value) }
       end
 
       # A decoder that always fails with some error message
+      #
+      # Useful for starting decoder chains that search for a successful value.
       def fail(message = '`fail` Decoder always fails')
         ArgCheck['message', message, String]
 
         Decoder.new { message }
+      end
+
+      # Test if an object is_a?(first_mod) (or is one of a list of modules)
+      #
+      # Note that classes are also modules.
+      #
+      # In general prefer `#is`.
+      #
+      # @param [Module] first_mod
+      # @param [Array<Module>] others
+      # @return [Decoder]
+      def mod(first_mod, *others)
+        all_mods = ([first_mod] + others).map.with_index { |o, i| ArgCheck["mods[#{i}]", o, Module] }
+        raise ReSorcery::Error::ArgumentError, "Do not use `nil`" if all_mods.include?(NilClass)
+
+        mods = all_mods.select { |m| ((m.ancestors - [m]) & all_mods).empty? }
+
+        msg = lambda {
+          prefix = mods.count == 1 ? "Expected" : "Expected one of"
+          "#{prefix} (#{mods.join(' | ')}) but received"
+        }
+
+        Decoder.new { |u| mods.any? { |m| u.is_a?(m) } || "#{msg.call}: #{u.class}" }
+      end
+
+      # Test if an object is one of a specific set of things
+      #
+      # In general prefer `#is`.
+      def one_of_exactly(thing, *others)
+        things = ([thing] + others).to_set
+        nillish = things.include?(nil)
+        raise ReSorcery::Error::ArgumentError, "Do not use `nil`" if nillish
+
+        msg = lambda {
+          prefix = things.count == 1 ? "Expected exactly" : "Expected one of exactly"
+          "#{prefix} (#{things.map(&:inspect).join(' | ')}) but received"
+        }
+
+        Decoder.new { |u| things.include?(u) || "#{msg.call}: #{u.inspect}" }
       end
 
       # Test if an object is a thing (or one of a list of things)
@@ -44,7 +89,11 @@ module ReSorcery
       # @return [Decoder]
       def is(thing, *others)
         things = [thing] + others
-        decoders = things.map { |t| make_decoder_from(t) }
+        groups = things.group_by { |t| [t.is_a?(Decoder), t.is_a?(Module)] }
+        decoders =
+          groups.fetch([true, false], []) +
+          (groups[[false, true]].nil? ? [] : [mod(*groups[[false, true]])]) +
+          (groups[[false, false]].nil? ? [] : [one_of_exactly(*groups[[false, false]])])
 
         Decoder.new do |instance|
           test_multiple(decoders, instance).map_error do |errors|
@@ -74,6 +123,10 @@ module ReSorcery
       end
 
       # Like #array, but test the array contains at least one item
+      #
+      # @param thing @see `is` for details
+      # @param others @see `is` for details
+      # @return [Decoder]
       def non_empty_array(thing, *others)
         array(thing, *others).and_then do |a|
           Decoder.new do

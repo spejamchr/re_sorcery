@@ -41,8 +41,10 @@ module ReSorcery
         end
       end
 
-      def test_is_with_object_decoder_uses_equality_not_identity
-        oks is(1), [1.0, 1.0 + 0i, 1r]
+      def test_is_with_object_decoder_uses_eql_not_identity
+        oks is("hi", ["hi"], {}), ["hi", ["hi"], {}]
+
+        errs is(1), [1.0, 1.0 + 0i, 1r]
       end
 
       def test_is_with_object_decoder_fails
@@ -87,6 +89,16 @@ module ReSorcery
         assert_equal ok('no'), human_bool.test('no')
 
         errs human_bool, ['other', 'maybe', 'yes ', "no\n"]
+      end
+
+      def test_is_with_multiple_different_types
+        thing = Object.new
+        specific_object = Decoder.new { |u| u == thing || "Expected a specific Object instance" }
+        c = is(specific_object, is(Complex), String, Symbol, [], [:a], 0)
+
+        oks c, [thing, 1i, "hi", :symbol, [], [:a], 0]
+
+        errs c, [Object.new, 1, [:invalid, "array"], 2]
       end
 
       def test_is_rejects_nil

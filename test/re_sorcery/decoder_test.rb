@@ -110,6 +110,19 @@ module ReSorcery
       assert_raises(ReSorcery::Error::ArgumentError) { invalid_decoder.test('anything') }
     end
 
+    def test_and_decoder
+      is_rgb_color = Decoder
+        .new { |u| u.is_a?(String) || u.is_a?(Symbol) || :a }
+        .map(&:to_sym)
+        .and { |v, u| %i[red green blue].include?(v) || u }
+
+      assert_equal ok(:red), is_rgb_color.test(:red)
+      assert_equal ok(:red), is_rgb_color.test("red")
+      assert_equal err(:a), is_rgb_color.test(1)
+      assert_equal err(:yellow), is_rgb_color.test(:yellow)
+      assert_equal err("yellow"), is_rgb_color.test("yellow")
+    end
+
     def test_or_else_decoder
       fails = Decoder.new { false }
       passes = Decoder.new { true }

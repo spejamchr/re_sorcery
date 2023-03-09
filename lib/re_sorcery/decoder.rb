@@ -97,6 +97,24 @@ module ReSorcery
       end
     end
 
+    # Chain decoders and maintain any transformed value
+    #
+    #     pos = is(String, Symbol)
+    #       .map(&:to_sym)
+    #       .and { |s, u| [:a, :b, :c].include?(s) || "Invalid option: #{u.inspect}" }
+    #
+    #     pos.test(:a) == ok(:a)
+    #     pos.test("a") == ok(:a)
+    #     pos.test("d") == err('Invalid option: "d"')
+    #
+    def and
+      and_then do |value|
+        Decoder.new do |unknown|
+          Decoder.new { yield(value, unknown) }.test(value)
+        end
+      end
+    end
+
     # If the `Decoder` failed, try another `Decoder`
     #
     # The block must return a `Decoder`.

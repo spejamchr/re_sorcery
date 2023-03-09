@@ -24,31 +24,12 @@ module ReSorcery
 
         private
 
-        def default_rels
-          %w[
-            self
-            create
-            update
-            destroy
-          ]
-        end
-
         def valid_rels
-          ReSorcery.configuration.fetch(:link_rels, default_rels)
-        end
-
-        def default_methods
-          %w[
-            get
-            post
-            patch
-            put
-            delete
-          ]
+          ReSorcery.configuration.fetch(:link_rels)
         end
 
         def valid_methods
-          ReSorcery.configuration.fetch(:link_methods, default_methods)
+          ReSorcery.configuration.fetch(:link_methods)
         end
 
         def uri_able

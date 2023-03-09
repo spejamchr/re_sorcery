@@ -3,13 +3,21 @@
 require "test_helper"
 
 module ReSorcery
-  class ConfigurationTest
+  class ConfigurationTest < Minitest::Test
     def setup
       clear_re_sorcery_config
     end
 
     def teardown
       clear_re_sorcery_config
+    end
+
+    ReSorcery::Configuration::CONFIGURABLES.each do |k, v|
+      define_method("test_#{k}_configuration_default_is_valid") do
+        default = v.fetch(:default)
+        decoder = v.fetch(:decoder)
+        assert_equal Result::Ok.new(default), decoder.test(default)
+      end
     end
 
     def test_cannot_configure_after_including_re_sorcery
@@ -21,7 +29,7 @@ module ReSorcery
     end
 
     def test_cannot_configure_twice
-      ReSorcery.configure
+      ReSorcery.configure { "do nothing" }
 
       assert_raises(Error::InvalidConfigurationError) do
         ReSorcery.configure { raise "This shouldn't run" }

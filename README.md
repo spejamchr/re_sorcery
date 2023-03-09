@@ -33,12 +33,17 @@ class StaticResource
   end
 end
 
-StaticResource.new.resource
-# #<ReSorcery::Result::Ok @value={
-#   :payload=>{:string=>"a string", :number=>42},
-#   :links=>[{:rel=>"self", :href=>"/here", :method=>"get", :type=>"application/json"},
-#            {:rel=>"create", :href=>"/here", :method=>"post", :type=>"application/json"}]
-# }>
+StaticResource.new.as_json
+# {
+#   :payload=>{
+#     :string=>"a string",
+#     :number=>42
+#   }, 
+#   :links=>[
+#     {:rel=>"self", :href=>"/here", :method=>"get", :type=>"application/json"}, 
+#     {:rel=>"create", :href=>"/here", :method=>"post", :type=>"application/json"}
+#   ]
+# }
 ```
 
 ## Installation
@@ -90,8 +95,8 @@ User.new(name: "Spencer", id: 1, admin: true).as_json #=> {
 
 # An invalid `name` raises an error when calling `as_json`
 User.new(name: :Invalid, id: 1).as_json
-# ReSorcery::Error::InvalidResourceError: Error at field `name` of `User`: Expected a(n) String, but
-# got a(n) Symbol
+# ReSorcery::Error::InvalidResourceError: 
+#   Error at field `name` of `User`: Expected kind String, but got Symbol
 ```
 
 The implementation of `ReSorcery#as_json` raises an exception on invalid data, instead of serving

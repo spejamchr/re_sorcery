@@ -42,6 +42,7 @@ module ReSorcery
 
     def initialize(&block)
       @block = block
+      freeze
     end
 
     # Use the decoder to `test` that an `unknown` object satisfies some property

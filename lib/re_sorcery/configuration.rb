@@ -23,6 +23,8 @@ module ReSorcery
     extend Decoder::BuiltinDecoders
 
     UNIQUE_STRING_OR_SYMBOL = non_empty_array(is(String, Symbol).map(&:to_s)).map(&:uniq)
+    DEFAULT_LINK_METHOD_DECODER = is(Proc)
+      .and { |p| p.arity == 1 || "default_link_method Proc must accept exactly one argument" }
 
     CONFIGURABLES = {
       link_rels: {
@@ -32,6 +34,14 @@ module ReSorcery
       link_methods: {
         decoder: UNIQUE_STRING_OR_SYMBOL,
         default: %w[get post patch put delete].freeze,
+      }.freeze,
+      default_link_method: {
+        decoder: DEFAULT_LINK_METHOD_DECODER,
+        default: ->(link_methods) { link_methods.first }.freeze,
+      }.freeze,
+      default_link_type: {
+        decoder: is(String),
+        default: "application/json",
       }.freeze,
     }.freeze
 

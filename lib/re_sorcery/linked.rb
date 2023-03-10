@@ -65,9 +65,10 @@ module ReSorcery
     # Define a `Link` for an object
     #
     # @see `ReSorcery::Linked::Link#initialize` for param types
-    def link(rel, href, method = 'get', type = 'application/json')
+    def link(rel, href, method = nil, type = nil)
       klass = Linked.link_class
-      (@_created_links ||= []) << klass.new(rel: rel, href: href, method: method, type: type).fields
+      args = {rel:, href:, method:, type:}.compact
+      (@_created_links ||= []) << klass.new(**args).fields
     end
   end
 end

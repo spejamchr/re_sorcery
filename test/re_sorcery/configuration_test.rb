@@ -35,5 +35,19 @@ module ReSorcery
         ReSorcery.configure { raise "This shouldn't run" }
       end
     end
+
+    def test_configurables_are_frozen
+      conf = ReSorcery::Configuration::CONFIGURABLES
+      pre = "Expected CONFIGURABLES"
+      assert conf.frozen?, "#{pre} to be frozen"
+      conf.each do |k, v|
+        assert k.frozen?, "#{pre} key #{k.inspect} to be frozen"
+        assert v.frozen?, "#{pre}[#{k.inspect}] to be frozen"
+        v.each do |vk, vv|
+          assert vk.frozen?, "#{pre}[#{k.inspect}] key #{vk.inspect} to be frozen"
+          assert vv.frozen?, "#{pre}[#{k.inspect}] value for #{vk.inspect} to be frozen"
+        end
+      end
+    end
   end
 end

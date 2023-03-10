@@ -58,13 +58,14 @@ module ReSorcery
         end
 
         def build_fields
-          default_method = valid_methods.first
+          default_method = ReSorcery.configuration.fetch(:default_link_method).call(valid_methods)
+          default_type = ReSorcery.configuration.fetch(:default_link_type)
 
           [
             [:rel, rel_decoder, -> { @args[:rel] }],
             [:href, uri_able, -> { @args[:href] }],
             [:method, method_decoder, -> { @args.fetch(:method, default_method) }],
-            [:type, String, -> { @args.fetch(:type, 'application/json') }],
+            [:type, String, -> { @args.fetch(:type, default_type) }],
           ]
         end
       end

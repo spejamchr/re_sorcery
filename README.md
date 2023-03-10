@@ -15,10 +15,13 @@ and link validation before sending resources to the client.
   `Array` of `<link>` objects).
 - Each entry in the `:payload` is type checked using a `Decoder` (inspired by [Elm's Decoders]).
 - A `<link>` is a `Hash` with four fields:
-  - `:href`, which is either a `URI` or a `String` that parses as a valid `URI`;
+  - `:href`, which is either a `URI` or a `String` that parses as a valid `URI` ([Addressable] is
+    used for URI-parsing, as it handles URI templates.)
   - `:rel`, which is a white-listed `String`;
   - `:method`, which is also a white-listed `String`; and
   - `:type`, which is a `String`.
+
+[Addressable]: https://github.com/sporkmonger/addressable
 
 Demo:
 

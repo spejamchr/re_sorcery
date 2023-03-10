@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "uri"
+require "addressable/uri"
 
 module ReSorcery
   module Linked
@@ -33,11 +34,11 @@ module ReSorcery
         end
 
         def uri_able
-          is(URI).or_else do
+          is(URI, Addressable::URI).or_else do
             is(String).and_then do
               Decoder.new do |u|
-                ok(URI.parse(u))
-              rescue URI::InvalidURIError
+                ok(Addressable::URI.parse(u))
+              rescue Addressable::URI::InvalidURIError
                 err("Not a valid URI: #{u}")
               end
             end

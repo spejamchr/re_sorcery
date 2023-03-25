@@ -19,6 +19,14 @@ module ReSorcery
     TrilyNested = test_in_class { field :nf, NestedField, -> { NestedField.new } }
     ArrayNested = test_in_class { field :sfs, array(StringField), -> { [StringField.new] * 2 } }
 
+    class InheritedStringField < StringField
+      field :c, String, -> { "other string" }
+    end
+
+    class OverwrittenStringField < StringField
+      field :a, String, -> { "new string" }
+    end
+
     ArrayOfStringOrNumber = test_in_class do
       field :c, array(is(StringField, NumberField)), -> { [StringField.new, NumberField.new] }
     end
@@ -31,6 +39,18 @@ module ReSorcery
 
     def test_not_result
       refute_kind_of Result, StringField.new
+    end
+
+    def test_string_field
+      assert_equal ok(a: "string"), StringField.new.fields
+    end
+
+    def test_inherited_string_field
+      assert_equal ok(a: "string", c: "other string"), InheritedStringField.new.fields
+    end
+
+    def test_overwritten_string_field
+      assert_equal ok(a: "new string"), OverwrittenStringField.new.fields
     end
 
     def test_fields_for_something_nestedly_fielded

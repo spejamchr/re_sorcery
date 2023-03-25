@@ -26,6 +26,10 @@ module ReSorcery
 
         (@fields ||= {})[name] = { type: is(type), pro: pro }
       end
+
+      def fields
+        (superclass&.include?(Fielded) ? superclass.send(:fields) : {}).merge(@fields || {})
+      end
     end
 
     def self.included(base)
@@ -39,7 +43,7 @@ module ReSorcery
     #
     # @return [Result<String, Hash>]
     def fields
-      self.class.instance_exec { @fields ||= [] }.inject(ok({})) do |result_hash, (name, field_hash)|
+      self.class.send(:fields).inject(ok({})) do |result_hash, (name, field_hash)|
         result_hash.assign(name) do
           field_hash[:type].test(instance_exec(&field_hash[:pro]))
             .and_then { |tested| ExpandInternalFields.expand(tested) }

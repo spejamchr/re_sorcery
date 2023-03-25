@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    re_sorcery (0.2.0)
+    re_sorcery (0.3.0)
       addressable (~> 2.8, >= 2.8.1)
 
 GEM
